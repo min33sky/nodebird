@@ -11,7 +11,7 @@ const Nodebird = ({ Component }) => {
   return (
     <>
       <Head>
-        <title>NordBird</title>
+        <title>NodeBird</title>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/antd/3.21.2/antd.css"
