@@ -2,24 +2,27 @@ import React, { useState, useCallback } from 'react';
 import { Form, Checkbox, Button } from 'antd';
 
 /**
+ * Custom Hook
+ * @param {*} initValue defaultValue
+ */
+export const useInput = (initValue = null) => {
+  // useState는 함수, 조건문 반목문에서 사용하지 말아야 하지만
+  // Custom Hook에서는 허용된다.
+  const [value, setter] = useState(initValue);
+  const handler = useCallback(e => {
+    setter(e.target.value);
+  }, []);
+  return [value, handler];
+};
+
+/**
  * 회원 가입 페이지
  */
-const SignUp = () => {
+const signup = () => {
   const [passwordCheck, setPasswordCheck] = useState('');
   const [term, setTerm] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [termError, setTermError] = useState(false);
-
-  // ***** Custom Hook ***** //
-  const useInput = (initValue = null) => {
-    // useState는 함수, 조건문 반목문에서 사용하지 말아야 하지만
-    // Custom Hook에서는 허용된다.
-    const [value, setter] = useState(initValue);
-    const handler = useCallback(e => {
-      setter(e.target.value);
-    }, []);
-    return [value, handler];
-  };
 
   const [id, onChangeId] = useInput('');
   const [nick, onChangeNick] = useInput('');
@@ -104,4 +107,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default signup;

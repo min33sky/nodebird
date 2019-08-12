@@ -1,13 +1,16 @@
 import React from 'react';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
-import { Menu, Input, Button, Row, Col, Card, Avatar } from 'antd';
+import { Menu, Input, Row, Col } from 'antd';
+import LoginForm from './LoginForm';
+import UserProfile from './UserProfile';
 
 const dummy = {
   nickname: '리오넬메시',
   Post: [],
   Followings: [],
   Followers: [],
+  isLoggedIn: false,
 };
 
 const AppLayout = ({ children }) => {
@@ -28,44 +31,18 @@ const AppLayout = ({ children }) => {
           <Input.Search enterButton style={{ verticalAlign: 'middle' }} />
         </Menu.Item>
       </Menu>
-      <Row>
+      {/* gutter: col간 간격 */}
+      <Row gutter={8}>
         <Col xs={24} md={6}>
-          <Card
-            actions={[
-              <div key="twit">
-                짹짹
-                <br />
-                {dummy.Post.length}
-              </div>,
-              <div key="following">
-                팔로잉
-                <br />
-                {dummy.Followings.length}
-              </div>,
-              <div key="follower">
-                팔로워
-                <br />
-                {dummy.Followers.length}
-              </div>,
-            ]}
-          >
-            <Card.Meta
-              avatar={<Avatar>{dummy.nickname[0]}</Avatar>}
-              title={dummy.nickname}
-              description="This is the description"
-            />
-          </Card>
-          <Link href="/signup">
-            <a>
-              <Button style={{ fontFamily: 'Jua' }}>회원 가입</Button>
-            </a>
-          </Link>
+          {dummy.isLoggedIn ? <UserProfile /> : <LoginForm />}
         </Col>
         <Col xs={24} md={12}>
           {children}
         </Col>
         <Col xs={24} md={6}>
-          준비중
+          <Link href="http://github.com/min33sky">
+            <a target="_blank">min33sky_GitHub</a>
+          </Link>
         </Col>
       </Row>
     </div>
