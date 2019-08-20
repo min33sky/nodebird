@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Form, Checkbox, Button } from 'antd';
+import { useDispatch } from 'react-redux';
+import { signUpAction } from '../reducers/user';
 
 /**
  * Custom Hook
@@ -9,13 +11,14 @@ export const useInput = (initValue = null) => {
   // useState는 함수, 조건문 반목문에서 사용하지 말아야 하지만
   // Custom Hook에서는 허용된다.
   const [value, setter] = useState(initValue);
-  const handler = useCallback(e => {
+  const handler = useCallback((e) => {
     setter(e.target.value);
   }, []);
   return [value, handler];
 };
 
 /**
+ * GET /signup
  * 회원 가입 페이지
  */
 const signup = () => {
@@ -28,29 +31,42 @@ const signup = () => {
   const [nick, onChangeNick] = useInput('');
   const [password, onChangePassword] = useInput('');
 
+  const dispatch = useDispatch();
+
   // ***** Event Handler ***** //
   const onSubmit = useCallback(
-    e => {
+    (e) => {
       e.preventDefault();
+      // 회원가입 조건 체크
       if (password !== passwordCheck) {
         setPasswordError(true);
+        return;
       }
       if (!term) {
         setTermError(true);
+        return;
       }
+      // 회원 가입 액션 디스패치
+      dispatch(
+        signUpAction({
+          id,
+          nick,
+          password,
+        }),
+      );
     },
     [password, passwordCheck, term],
   );
 
   const onChangePasswordCheck = useCallback(
-    e => {
+    (e) => {
       setPasswordError(e.target.value !== password);
       setPasswordCheck(e.target.value);
     },
     [password],
   );
 
-  const onChangeTerm = useCallback(e => {
+  const onChangeTerm = useCallback((e) => {
     setTermError(false);
     setTerm(e.target.checked);
   }, []);

@@ -1,29 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import PostForm from '../components/PostForm';
 import PostCard from '../components/PostCard';
 
-const dummy = {
-  isLoggedIn: true,
-  imagePaths: [],
-  mainPosts: [
-    {
-      User: {
-        id: 1,
-        nickname: '메시',
-      },
-      content: '첫 번째 게시글',
-      img: 'https://t1.daumcdn.net/cfile/tistory/99B7034C5B5F0E8703',
-    },
-  ],
-};
-
+/**
+ * GET /
+ * 메인 페이지
+ */
 const Home = () => {
+  const { isLoggedIn } = useSelector((state) => state.user);
+  const { mainPosts } = useSelector((state) => state.post);
+
+  // Test
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch({
+      type: 'HELLO_SAGA',
+    });
+    dispatch({
+      type: 'HELLO_SAGA',
+    });
+    dispatch({
+      type: 'HELLO_SAGA',
+    });
+  }, []);
+
   return (
     <div>
-      {dummy.isLoggedIn && <PostForm />}
-      {dummy.mainPosts.map(c => {
-        return <PostCard key="c" post={c} />;
-      })}
+      {isLoggedIn && <PostForm />}
+      {mainPosts.map((c) => (
+        <PostCard key="c" post={c} />
+      ))}
     </div>
   );
 };

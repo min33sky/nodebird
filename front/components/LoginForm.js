@@ -1,32 +1,33 @@
 import React, { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 import { Button, Form } from 'antd';
 import Link from 'next/link';
 import { useInput } from '../pages/signup';
+import { loginAction } from '../reducers/user';
 
 const LoginForm = () => {
   // Custom Hook 사용
   const [id, onChangeId] = useInput('');
   const [password, onChangePassword] = useInput('');
 
+  const dispatch = useDispatch();
+
   const onSubmitForm = useCallback(
-    e => {
+    (e) => {
       e.preventDefault();
-      console.log({
-        id,
-        password,
-      });
+      dispatch(loginAction);
     },
     [id, password],
   );
 
   return (
     <Form onSubmit={onSubmitForm} style={{ padding: 10 }}>
-      <div>
+      <div style={{ marginBottom: 10 }}>
         <label htmlFor="login_field">아이디</label>
         <br />
         <input id="login_field" value={id} onChange={onChangeId} required />
       </div>
-      <div>
+      <div style={{ marginBottom: 10 }}>
         <label htmlFor="password">패스워드</label>
         <br />
         <input
@@ -42,7 +43,7 @@ const LoginForm = () => {
         </Button>
         <Link href="/signup">
           <a>
-            <Button style={{ fontFamily: 'Jua' }}>회원 가입</Button>
+            <Button>회원 가입</Button>
           </a>
         </Link>
       </div>
