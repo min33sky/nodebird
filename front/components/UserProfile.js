@@ -5,7 +5,7 @@ import { Card, Avatar, Button } from 'antd';
 import { logoutAction } from '../reducers/user';
 
 const UserProfile = () => {
-  const { user } = useSelector((state) => state.user);
+  const { me } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   const onLogout = useCallback(() => {
@@ -17,26 +17,26 @@ const UserProfile = () => {
       <Card
         actions={[
           <div key="twit">
-            짹짹
+            게시물
             <br />
-            {user.Post.length}
+            {me.Post.length}
           </div>,
           <div key="following">
             팔로잉
             <br />
-            {user.Followings.length}
+            {me.Followings.length}
           </div>,
           <div key="follower">
             팔로워
             <br />
-            {user.Followers.length}
+            {me.Followers.length}
           </div>,
         ]}
       >
         <Card.Meta
-          avatar={<Avatar>{user.nickname[0]}</Avatar>}
-          title={user.nickname}
-          description="설명적는 곳"
+          avatar={<Avatar>{me.nickname[0]}</Avatar>}
+          title={me.nickname}
+          description="나는 누구인가요?"
         />
       </Card>
       <Button onClick={onLogout}>Logout</Button>

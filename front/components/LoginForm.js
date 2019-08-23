@@ -1,21 +1,22 @@
 import React, { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button, Form } from 'antd';
 import Link from 'next/link';
 import { useInput } from '../pages/signup';
 import { loginAction } from '../reducers/user';
 
 const LoginForm = () => {
-  // Custom Hook 사용
+  // ***************** Custom Hook 사용 *************************//
   const [id, onChangeId] = useInput('');
   const [password, onChangePassword] = useInput('');
 
   const dispatch = useDispatch();
+  const { isLoading } = useSelector((state) => state.user);
 
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
-      dispatch(loginAction);
+      dispatch(loginAction({ id, password }));
     },
     [id, password],
   );
@@ -38,7 +39,7 @@ const LoginForm = () => {
         />
       </div>
       <div>
-        <Button type="primary" htmlType="submit" loading={false}>
+        <Button type="primary" htmlType="submit" loading={isLoading}>
           로그인
         </Button>
         <Link href="/signup">

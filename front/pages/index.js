@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import PostForm from '../components/PostForm';
 import PostCard from '../components/PostCard';
 
@@ -11,19 +11,8 @@ const Home = () => {
   const { isLoggedIn } = useSelector((state) => state.user);
   const { mainPosts } = useSelector((state) => state.post);
 
-  // Test
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch({
-      type: 'HELLO_SAGA',
-    });
-    dispatch({
-      type: 'HELLO_SAGA',
-    });
-    dispatch({
-      type: 'HELLO_SAGA',
-    });
-  }, []);
+  // Lifecycle Function
+  useEffect(() => {}, []);
 
   return (
     <div>

@@ -3,16 +3,43 @@ export const initialState = {
   mainPosts: [
     // 화면에 보일 포스트들
     {
+      id: 1,
       User: {
         id: 1,
         nickname: '메시',
       },
       content: '첫 번째 게시글',
       img: 'https://t1.daumcdn.net/cfile/tistory/99B7034C5B5F0E8703',
+      Comments: [],
     },
   ],
   addPostErrorReason: '', // 포스트 업로드 실패 사유
+  addCommentErrorReason: '', // 댓글 업로드 실패 사유
   isAddingPost: false, // 포스트 업로드 중
+  isAddingComment: false, // 댓글 업로드 중
+  addedPost: false, // 포스트 추가 완료
+  addedComment: false, // 댓글 추가 완료
+};
+
+const dummyPost = {
+  id: 22,
+  User: {
+    id: 2,
+    nickname: '호날두',
+  },
+  content: '더미 포스트입니다.',
+  img: 'https://t1.daumcdn.net/cfile/tistory/99B7034C5B5F0E8703',
+  Comments: [],
+};
+
+const dummyComments = {
+  id: 1,
+  User: {
+    id: 3,
+    nickname: '네이마르',
+  },
+  createdAt: new Date(),
+  content: '더미 댓글입니다.',
 };
 
 // 메인 포스트 관련
@@ -68,7 +95,7 @@ export const REMOVE_POST_REQUEST = 'REMOVE_POST_REQUEST';
 export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 
-export const addPost = {
+export const addPostRequest = {
   type: ADD_POST_REQUEST,
 };
 
@@ -77,6 +104,53 @@ const reducer = (state = initialState, action) => {
     case ADD_POST_REQUEST:
       return {
         ...state,
+        isAddingPost: true,
+        addedPost: false,
+        addPostErrorReason: '',
+      };
+    case ADD_POST_SUCCESS:
+      return {
+        ...state,
+        isAddingPost: false,
+        addedPost: true,
+        mainPosts: [dummyPost, ...state.mainPosts],
+      };
+    case ADD_POST_FAILURE:
+      return {
+        ...state,
+        addPostErrorReason: action.error,
+      };
+    case ADD_COMMENT_REQUEST:
+      return {
+        ...state,
+        isAddingComment: true,
+        addedComment: false,
+        addCommentErrorReason: '',
+      };
+    case ADD_COMMENT_SUCCESS: {
+      // ** 불변성 지키기 **
+      // 댓글을 달 게시물 찾기
+      const postIndex = state.mainPosts.findIndex(
+        (v) => v.id === action.data.postId,
+      );
+      const post = state.mainPosts[postIndex];
+      // 댓글 추가
+      const Comments = [...post.Comments, dummyComments];
+      // 게시물 업데이트
+      const mainPosts = [...state.mainPosts];
+      mainPosts[postIndex] = { ...post, Comments };
+      return {
+        ...state,
+        isAddingComment: false,
+        addedComment: true,
+        mainPosts,
+      };
+    }
+    case ADD_COMMENT_FAILURE:
+      return {
+        ...state,
+        isAddingComment: false,
+        addCommentErrorReason: action.error,
       };
     default:
       return {

@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Checkbox, Button } from 'antd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import Router from 'next/router';
 import { signUpAction } from '../reducers/user';
 
 /**
@@ -32,6 +33,19 @@ const signup = () => {
   const [password, onChangePassword] = useInput('');
 
   const dispatch = useDispatch();
+  const { isSigningUp, me } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (me) {
+      alert('메인 페이지로 이동합니다.');
+      Router.push('/');
+    }
+    /**
+     * 의존 배열의 값은 객체 대신 일반 값을 사용한다.
+     * (객체나 배열은 비교하기 까다롭기 때문에)
+     * 객체 안의 값을 사용할땐 먼저 객체가 undefined인지 체크하자
+     */
+  }, [me && me.id]);
 
   // ***** Event Handler ***** //
   const onSubmit = useCallback(
@@ -114,7 +128,7 @@ const signup = () => {
           {termError && <div style={{ color: 'red' }}>약관 에러</div>}
         </div>
         <div style={{ marginTop: 10 }}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={isSigningUp}>
             가입하기
           </Button>
         </div>

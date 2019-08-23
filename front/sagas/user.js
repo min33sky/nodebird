@@ -1,5 +1,5 @@
 import {
- all, fork, call, put, takeLatest 
+ all, fork, put, takeLatest, delay 
 } from 'redux-saga/effects';
 import axios from 'axios';
 import {
@@ -7,8 +7,14 @@ import {
   LOG_IN_SUCCESS,
   LOG_IN_FAILURE,
   SIGN_UP_REQUEST,
+  LOG_OUT_REQUEST,
+  LOG_OUT_FAILURE,
+  LOG_OUT_SUCCESS,
+  SIGN_UP_FAILURE,
+  SIGN_UP_SUCCESS,
 } from '../reducers/user';
 
+// ******************** Server Request API********************* //
 function loginApi() {
   // 서버에 요청을 보내는 부분
   return axios.post('/login');
@@ -16,26 +22,54 @@ function loginApi() {
 
 function signUpApi() {}
 
+// ********************* Worker Saga *************************** //
 function* login() {
   try {
-    yield call(loginApi);
+    // yield call(loginApi);
+    yield delay(2000); // 로그인 테스트용
     yield put({
       // put은 dispatch 동일
       type: LOG_IN_SUCCESS,
     });
   } catch (error) {
-    console.error(error);
     yield put({
       type: LOG_IN_FAILURE,
+      error,
     });
   }
 }
 
-function* signUp(params) {
-  // try {
-  // } catch (error) {}
+function* logout() {
+  try {
+    yield delay(1000);
+    yield put({
+      type: LOG_OUT_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: LOG_OUT_FAILURE,
+      error,
+    });
+  }
 }
 
+function* signUp() {
+  try {
+    yield delay(2000);
+    // 일부러 에러 내기
+    throw new Error('E.R.R.O.R');
+    yield put({
+      type: SIGN_UP_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: SIGN_UP_FAILURE,
+      error,
+    });
+  }
+}
+
+// ****************** watcher Saga ************************** //
 function* watchLogin() {
   /**
    * 반복문을 쓰는 이유 ex)for문, while(true), takeEvery, takeLatest
@@ -49,6 +83,10 @@ function* watchLogin() {
   yield takeLatest(LOG_IN_REQUEST, login);
 }
 
+function* watchLogout() {
+  yield takeLatest(LOG_OUT_REQUEST, logout);
+}
+
 function* watchSignUp() {
   yield takeLatest(SIGN_UP_REQUEST, signUp);
 }
@@ -59,5 +97,5 @@ export default function* userSaga() {
    * - fork()는 비동기 call()은 동기로 동작
    * - 순서의 의미가 없을 땐 비동기인 fork() 사용
    */
-  yield all([fork(watchLogin), fork(watchSignUp)]);
+  yield all([fork(watchLogin), fork(watchSignUp), fork(watchLogout)]);
 }

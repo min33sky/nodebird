@@ -3,7 +3,8 @@
 ## Frontend
 
 - react
-- next
 - redux
+- redux-saga
+- next
 
 ## Backend
