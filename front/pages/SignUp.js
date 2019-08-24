@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Checkbox, Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
-import { signUpAction } from '../reducers/user';
+import { signUpAction, SIGN_UP_REQUEST } from '../reducers/user';
 
 /**
  * Custom Hook
@@ -63,13 +63,13 @@ const signup = () => {
       // 회원 가입 액션 디스패치
       dispatch(
         signUpAction({
-          id,
-          nick,
+          userId: id,
+          nickname: nick,
           password,
         }),
       );
     },
-    [password, passwordCheck, term],
+    [id, password, passwordCheck, term],
   );
 
   const onChangePasswordCheck = useCallback(

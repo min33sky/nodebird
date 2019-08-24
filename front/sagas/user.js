@@ -1,5 +1,5 @@
 import {
- all, fork, put, takeLatest, delay 
+ all, fork, put, takeLatest, delay, call 
 } from 'redux-saga/effects';
 import axios from 'axios';
 import {
@@ -15,20 +15,20 @@ import {
 } from '../reducers/user';
 
 // ******************** Server Request API********************* //
-function loginApi() {
-  // 서버에 요청을 보내는 부분
-  return axios.post('/login');
+function loginApi(data) {
+  return axios.post('http://localhost:8080/api/login', data);
 }
 
-function signUpApi() {}
+function signUpApi(data) {
+  return axios.post('http://localhost:8080/api/user', data);
+}
 
 // ********************* Worker Saga *************************** //
-function* login() {
+function* login(action) {
   try {
-    // yield call(loginApi);
-    yield delay(2000); // 로그인 테스트용
+    yield call(loginApi, action.data);
+    // put은 dispatch 동일
     yield put({
-      // put은 dispatch 동일
       type: LOG_IN_SUCCESS,
     });
   } catch (error) {
@@ -53,13 +53,12 @@ function* logout() {
   }
 }
 
-function* signUp() {
+function* signUp(action) {
   try {
-    yield delay(2000);
-    // 일부러 에러 내기
-    throw new Error('E.R.R.O.R');
+    yield call(signUpApi, action.data);
     yield put({
       type: SIGN_UP_SUCCESS,
+      data: action.data,
     });
   } catch (error) {
     yield put({
@@ -88,6 +87,7 @@ function* watchLogout() {
 }
 
 function* watchSignUp() {
+  console.log('사인업');
   yield takeLatest(SIGN_UP_REQUEST, signUp);
 }
 

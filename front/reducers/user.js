@@ -72,9 +72,9 @@ export const logoutAction = {
   type: LOG_OUT_REQUEST,
 };
 
-export const signUpAction = (payload) => ({
+export const signUpAction = (data) => ({
   type: SIGN_UP_REQUEST,
-  payload,
+  data,
 });
 
 // ************************ REDUCER ***************************** //
