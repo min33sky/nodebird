@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.associate = (db) => {
+    /**
+     * through: 다대다 관계에서 생기는 테이블
+     * as: 같은 테이블에 다른 관계가 생길 때 구별하기 위한 이름
+     *     해당 이름의 배열로 시퀄라이즈에서 값을 가져온다.
+     */
     db.User.hasMany(db.Post, { as: 'Posts' });
     db.User.hasMany(db.Comment);
     db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' });

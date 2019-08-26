@@ -17,7 +17,13 @@ passportConfig();
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    // 서버주소와 프론트주소가 다를 때 쿠키를 주고받기 위한 설정
+    origin: true,
+    credentials: true,
+  }),
+);
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(
   expressSession({
@@ -28,13 +34,13 @@ app.use(
       httpOnly: true,
       secure: false, // https를 쓸 때 true
     },
+    name: 'ndrck', // 보안을 위해 이름 지정 (express-session 기본 값: session.id)
   }),
 );
 app.use(passport.initialize());
 app.use(passport.session()); // express-session보다 아래에 위치
 
-// Router
-app.use('/api', api);
+app.use('/api', api); // Router
 
 app.get('/', (req, res) => {
   res.send('Hello, Server');

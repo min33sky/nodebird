@@ -8,3 +8,8 @@
 - next
 
 ## Backend
+
+- express
+- sequelize
+- mysql
+- passport

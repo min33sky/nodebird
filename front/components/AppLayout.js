@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {
  Menu, Input, Row, Col 
 } from 'antd';
 import LoginForm from './LoginForm';
 import UserProfile from './UserProfile';
+import { loadUserAction } from '../reducers/user';
 
 const AppLayout = ({ children }) => {
-  const { isLoggedIn } = useSelector((state) => state.user);
+  const { me } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(loadUserAction());
+  }, []);
 
   return (
     <div style={{ fontFamily: 'Jua' }}>
@@ -31,7 +37,7 @@ const AppLayout = ({ children }) => {
       {/* gutter: col간 간격 */}
       <Row gutter={8}>
         <Col xs={24} md={6}>
-          {isLoggedIn ? <UserProfile /> : <LoginForm />}
+          {me ? <UserProfile /> : <LoginForm />}
         </Col>
         <Col xs={24} md={12}>
           {children}

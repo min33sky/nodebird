@@ -2,16 +2,16 @@ export const initialState = {
   imagePaths: [], // 미리보기 이미지 경로
   mainPosts: [
     // 화면에 보일 포스트들
-    {
-      id: 1,
-      User: {
-        id: 1,
-        nickname: '메시',
-      },
-      content: '첫 번째 게시글',
-      img: 'https://t1.daumcdn.net/cfile/tistory/99B7034C5B5F0E8703',
-      Comments: [],
-    },
+    // {
+    //   id: 1,
+    //   User: {
+    //     id: 1,
+    //     nickname: '메시',
+    //   },
+    //   content: '첫 번째 게시글',
+    //   img: 'https://t1.daumcdn.net/cfile/tistory/99B7034C5B5F0E8703',
+    //   Comments: [],
+    // },
   ],
   addPostErrorReason: '', // 포스트 업로드 실패 사유
   addCommentErrorReason: '', // 댓글 업로드 실패 사유
@@ -95,9 +95,10 @@ export const REMOVE_POST_REQUEST = 'REMOVE_POST_REQUEST';
 export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 
-export const addPostRequest = {
+export const addPostRequest = (data) => ({
   type: ADD_POST_REQUEST,
-};
+  data,
+});
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -113,7 +114,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         isAddingPost: false,
         addedPost: true,
-        mainPosts: [dummyPost, ...state.mainPosts],
+        mainPosts: [action.data, ...state.mainPosts],
       };
     case ADD_POST_FAILURE:
       return {
@@ -152,6 +153,24 @@ const reducer = (state = initialState, action) => {
         isAddingComment: false,
         addCommentErrorReason: action.error,
       };
+    case LOAD_MAIN_POSTS_REQUEST: {
+      return {
+        ...state,
+        mainPosts: [],
+      };
+    }
+    case LOAD_MAIN_POSTS_SUCCESS: {
+      return {
+        ...state,
+        mainPosts: action.data,
+      };
+    }
+    case LOAD_MAIN_POSTS_FAILURE: {
+      return {
+        ...state,
+      };
+    }
+
     default:
       return {
         ...state,
