@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
- Card, Icon, Button, Avatar, List, Form, Input, Comment 
-} from 'antd';
+import Link from 'next/link';
+import { Card, Icon, Button, Avatar, List, Form, Input, Comment } from 'antd';
 import PropTypes from 'prop-types';
 import { ADD_COMMENT_REQUEST } from '../reducers/post';
 
@@ -62,9 +61,38 @@ const PostCard = ({ post }) => {
         extra={<Button>팔로우</Button>}
       >
         <Card.Meta
-          avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
+          avatar={
+            <Link
+              href={{ pathname: '/user', query: { id: post.User.id } }}
+              as={`/user/${post.User.id}`}
+            >
+              <a>
+                <Avatar>{post.User.nickname[0]}</Avatar>
+              </a>
+            </Link>
+          }
           title={post.User.nickname}
-          description={post.content}
+          description={
+            <div>
+              {post.content.split(/(#[^\s]+)/g).map((value) => {
+                if (value.match(/#[^\s]+/)) {
+                  return (
+                    <Link
+                      href={{
+                        pathname: '/hashtag',
+                        query: { tag: value.slice(1) },
+                      }}
+                      as={`/hashtag/${value.slice(1)}`}
+                      key={value}
+                    >
+                      <a>{value}</a>
+                    </Link>
+                  );
+                }
+                return value;
+              })}
+            </div>
+          }
         />
       </Card>
       {commentFormOpened && (

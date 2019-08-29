@@ -1,3 +1,5 @@
+import { userInfo } from 'os';
+
 export const initialState = {
   me: null, // 내 정보 & 로그인 여부
   userInfo: null, // 다른 유저 정보
@@ -67,10 +69,6 @@ export const signUpAction = (data) => ({
   data,
 });
 
-export const loadUserAction = () => ({
-  type: LOAD_USER_REQUEST,
-});
-
 // ************************ REDUCER ***************************** //
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -136,9 +134,15 @@ const reducer = (state = initialState, action) => {
       };
     }
     case LOAD_USER_SUCCESS: {
+      if (action.me) {
+        return {
+          ...state,
+          me: action.data,
+        };
+      }
       return {
         ...state,
-        me: action.data,
+        userInfo: action.data,
       };
     }
     case LOAD_USER_FAILURE: {

@@ -1,7 +1,5 @@
 import React from 'react';
-import {
- Button, List, Card, Icon 
-} from 'antd';
+import { Button, List, Card, Icon } from 'antd';
 import NicknameEditForm from '../components/NicknameEditForm';
 
 /**

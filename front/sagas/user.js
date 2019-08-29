@@ -1,6 +1,4 @@
-import {
- all, fork, put, takeLatest, call 
-} from 'redux-saga/effects';
+import { all, fork, put, takeLatest, call } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   LOG_IN_REQUEST,
@@ -22,14 +20,14 @@ import {
 // });
 
 // ******************** Server Request API********************* //
-function loginApi(data) {
-  return axios.post('/user/login', data, {
+function loginApi(loginData) {
+  return axios.post('/user/login', loginData, {
     withCredentials: true, // 서버와 쿠키를 주고 받을 수 있다. (서버에도 설정을 해야함)
   });
 }
 
-function signUpApi(data) {
-  return axios.post('/user', data);
+function signUpApi(signUpData) {
+  return axios.post('/user', signUpData);
 }
 
 function logoutApi() {
@@ -43,8 +41,10 @@ function logoutApi() {
   );
 }
 
-function loadUserApi() {
-  return axios.get('/user', {
+function loadUserApi(id) {
+  // id가 있으면 특정 사용자 정보. 없으면 로그인 한 사용자 정보
+  console.log('아이디 :', id);
+  return axios.get(id ? `/user/${id}` : '/user', {
     withCredentials: true,
   });
 }
@@ -95,13 +95,18 @@ function* signUp(action) {
   }
 }
 
-function* loadUser() {
+/**
+ * 사용자 정보 불러오기
+ * - action.data가 존재하면 다른 사용자 정보를 불러온다.
+ */
+function* loadUser(action) {
   try {
-    const result = yield call(loadUserApi);
+    const result = yield call(loadUserApi, action.data);
     console.log('유저 정보 : ', result);
     yield put({
       type: LOAD_USER_SUCCESS,
       data: result.data,
+      me: !action.data, // 로그인한 유저의 정보인지 판별
     });
   } catch (error) {
     yield put({
@@ -120,6 +125,7 @@ function* watchLogin() {
    * - takeLatest는 여러번 요청이 오면 가장 마지막 요청만 실행한다.
    * - 이전 요청이 끝나지 않은게 있다면 이전 요청을 취소한다.
    * !! 사가와 리덕스는 별개이기 때문에 사가에선 동작안해도 리덕스는 동작한다.
+   * !! ex) ReduxDevTools에는 Action이 나타난다.
    * take() : 해당 액션이 디스패치되면 알아서 next()하는 이펙트
    */
   yield takeLatest(LOG_IN_REQUEST, login);

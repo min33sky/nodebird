@@ -17,7 +17,7 @@ router.get('/', async (req, res, next) => {
           attributes: ['id', 'nickname', 'userId'],
         },
       ],
-      order: [['createdAt', 'DESC']],
+      order: [['createdAt', 'DESC']], // 생성일 내림차순으로 정렬
     });
     res.json(posts);
   } catch (error) {

@@ -7,7 +7,7 @@ const router = express.Router();
 
 /**
  * GET /api/user
- * 사용자 정보 가져오기
+ * 로그인 한 사용자 정보 가져오기
  */
 router.get('/', (req, res) => {
   if (!req.user) {
@@ -23,6 +23,45 @@ router.get('/', (req, res) => {
   const user = { ...req.user.toJSON() };
   delete user.password;
   return res.json(user);
+});
+
+/**
+ * GET /api/user/:id
+ * 특정 사용자 정보 불러오기
+ */
+router.get('/:id', async (req, res, next) => {
+  console.log('아이디 : ', req.params.id);
+  try {
+    const user = await db.User.findOne({
+      where: { id: parseInt(req.params.id, 10) },
+      include: [
+        {
+          model: db.Post,
+          as: 'Posts',
+          attributes: ['id'],
+        },
+        {
+          model: db.User,
+          as: 'Followings',
+          attributes: ['id'],
+        },
+        {
+          model: db.User,
+          as: 'Followers',
+          attributes: ['id'],
+        },
+      ],
+      attributes: ['id', 'nickname'],
+    });
+    const jsonUser = user.toJSON();
+    jsonUser.Posts = jsonUser.Posts ? jsonUser.Posts.length : 0;
+    jsonUser.Followings = jsonUser.Followings ? jsonUser.Followings.length : 0;
+    jsonUser.Followers = jsonUser.Followers ? jsonUser.Followers.length : 0;
+    res.json(jsonUser);
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
 });
 
 /**
@@ -109,6 +148,31 @@ router.post('/login', (req, res, next) => {
       return res.json(fullUser);
     });
   })(req, res, next);
+});
+
+/**
+ * GET /api/user/:id/posts
+ * 해당 사용자의 게시물 불러오기
+ */
+router.get('/:id/posts', async (req, res, next) => {
+  try {
+    const posts = await db.Post.findAll({
+      where: {
+        UserId: parseInt(req.params.id, 10),
+        RetweetId: null,
+      },
+      include: [
+        {
+          model: db.User,
+          attributes: ['id', 'nickname'],
+        },
+      ],
+    });
+    res.json(posts);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 /**

@@ -2,19 +2,21 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
-import {
- Menu, Input, Row, Col 
-} from 'antd';
+import { Menu, Input, Row, Col } from 'antd';
 import LoginForm from './LoginForm';
 import UserProfile from './UserProfile';
-import { loadUserAction } from '../reducers/user';
+import { LOAD_USER_REQUEST } from '../reducers/user';
 
 const AppLayout = ({ children }) => {
   const { me } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(loadUserAction());
+    if (!me) {
+      dispatch({
+        type: LOAD_USER_REQUEST,
+      });
+    }
   }, []);
 
   return (

@@ -22,7 +22,7 @@ export const useInput = (initValue = null) => {
  * GET /signup
  * 회원 가입 페이지
  */
-const signup = () => {
+const Signup = () => {
   const [passwordCheck, setPasswordCheck] = useState('');
   const [term, setTerm] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
@@ -137,4 +137,4 @@ const signup = () => {
   );
 };
 
-export default signup;
+export default Signup;

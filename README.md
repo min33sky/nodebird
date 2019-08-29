@@ -6,6 +6,7 @@
 - redux
 - redux-saga
 - next
+- express
 
 ## Backend
 

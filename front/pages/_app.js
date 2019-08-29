@@ -14,7 +14,7 @@ import rootSaga from '../sagas';
  * - Component: Next에서 넣어주는 Props (pages 폴더의 페이지 컴포넌트))
  * - store: withRedux에서 넣어주는 Props
  */
-const Nodebird = ({ Component, store }) => (
+const Nodebird = ({ Component, store, pageProps }) => (
   <Provider store={store}>
     <Head>
       <title>NodeBird</title>
@@ -28,7 +28,7 @@ const Nodebird = ({ Component, store }) => (
       />
     </Head>
     <AppLayout>
-      <Component />
+      <Component {...pageProps} />
     </AppLayout>
   </Provider>
 );
@@ -36,7 +36,26 @@ const Nodebird = ({ Component, store }) => (
 Nodebird.propTypes = {
   Component: PropTypes.elementType.isRequired,
   store: PropTypes.object.isRequired,
+  pageProps: PropTypes.object.isRequired,
 };
+
+/**
+ * * Lifecycle Function
+ * - componentDidMount보다도 먼저 호출된다.
+ * - 서버와 클라이언트 모두에서 사용되므로 서버사이드렌더링에 사용
+ * - context: next에서 제공하는 인자
+ */
+Nodebird.getInitialProps = async (context) => {
+  console.log(context);
+  const { ctx, Component } = context; // Component: 현재 페이지 컴포넌트
+  let pageProps = {};
+  if (Component.getInitialProps) {
+    pageProps = await Component.getInitialProps(ctx);
+  }
+  return { pageProps }; // 컴포넌트가 마운트 되기 전에 제공하는 props
+};
+
+// ********************************* Redux Setting *********************************** //
 
 const configureStore = (initialState, options) => {
   const sagaMiddleware = createSagaMiddleware();
@@ -46,15 +65,16 @@ const configureStore = (initialState, options) => {
    * Next에서 제공하는 options.isServer 메서드로
    * 서버인지 아닌지 확인한다
    */
-  const enhancer =    process.env.NODE_ENV === 'production'
+  const enhancer =
+    process.env.NODE_ENV === 'production'
       ? compose(applyMiddleware(...middlewares))
       : compose(
-        applyMiddleware(...middlewares),
-        !options.isServer
-            && window.__REDUX_DEVTOOLS_EXTENSION__ !== 'undefined'
-          ? window.__REDUX_DEVTOOLS_EXTENSION__()
-          : (f) => f,
-      );
+          applyMiddleware(...middlewares),
+          !options.isServer &&
+            window.__REDUX_DEVTOOLS_EXTENSION__ !== 'undefined'
+            ? window.__REDUX_DEVTOOLS_EXTENSION__()
+            : (f) => f,
+        );
   const store = createStore(reducer, initialState, enhancer);
   sagaMiddleware.run(rootSaga);
   return store; // withRedux 함수가 리턴하는 함수의 파라미터로 받는 컴포넌트의 props로 전달된다.

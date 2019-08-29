@@ -1,35 +1,12 @@
 export const initialState = {
   imagePaths: [], // 미리보기 이미지 경로
-  mainPosts: [
-    // 화면에 보일 포스트들
-    // {
-    //   id: 1,
-    //   User: {
-    //     id: 1,
-    //     nickname: '메시',
-    //   },
-    //   content: '첫 번째 게시글',
-    //   img: 'https://t1.daumcdn.net/cfile/tistory/99B7034C5B5F0E8703',
-    //   Comments: [],
-    // },
-  ],
+  mainPosts: [],
   addPostErrorReason: '', // 포스트 업로드 실패 사유
   addCommentErrorReason: '', // 댓글 업로드 실패 사유
   isAddingPost: false, // 포스트 업로드 중
   isAddingComment: false, // 댓글 업로드 중
   addedPost: false, // 포스트 추가 완료
   addedComment: false, // 댓글 추가 완료
-};
-
-const dummyPost = {
-  id: 22,
-  User: {
-    id: 2,
-    nickname: '호날두',
-  },
-  content: '더미 포스트입니다.',
-  img: 'https://t1.daumcdn.net/cfile/tistory/99B7034C5B5F0E8703',
-  Comments: [],
 };
 
 const dummyComments = {
@@ -109,6 +86,7 @@ const reducer = (state = initialState, action) => {
         addedPost: false,
         addPostErrorReason: '',
       };
+
     case ADD_POST_SUCCESS:
       return {
         ...state,
@@ -116,11 +94,13 @@ const reducer = (state = initialState, action) => {
         addedPost: true,
         mainPosts: [action.data, ...state.mainPosts],
       };
+
     case ADD_POST_FAILURE:
       return {
         ...state,
         addPostErrorReason: action.error,
       };
+
     case ADD_COMMENT_REQUEST:
       return {
         ...state,
@@ -128,6 +108,7 @@ const reducer = (state = initialState, action) => {
         addedComment: false,
         addCommentErrorReason: '',
       };
+
     case ADD_COMMENT_SUCCESS: {
       // ** 불변성 지키기 **
       // 댓글을 달 게시물 찾기
@@ -147,24 +128,34 @@ const reducer = (state = initialState, action) => {
         mainPosts,
       };
     }
+
     case ADD_COMMENT_FAILURE:
       return {
         ...state,
         isAddingComment: false,
         addCommentErrorReason: action.error,
       };
+
+    case LOAD_HASHTAG_POSTS_REQUEST:
+    case LOAD_USER_POSTS_REQUEST:
     case LOAD_MAIN_POSTS_REQUEST: {
       return {
         ...state,
         mainPosts: [],
       };
     }
+
+    case LOAD_HASHTAG_POSTS_SUCCESS:
+    case LOAD_USER_POSTS_SUCCESS:
     case LOAD_MAIN_POSTS_SUCCESS: {
       return {
         ...state,
         mainPosts: action.data,
       };
     }
+
+    case LOAD_HASHTAG_POSTS_FAILURE:
+    case LOAD_USER_POSTS_FAILURE:
     case LOAD_MAIN_POSTS_FAILURE: {
       return {
         ...state,
