@@ -40,7 +40,7 @@ app.prepare().then(() => {
   );
 
   server.get('/hashtag/:tag', (req, res) => {
-    // next로 라우팅
+    // next로 라우팅  (마지막 인자값은 getInitialProps에서 사용할 수 있다.)
     return app.render(req, res, '/hashtag', { tag: req.params.tag });
   });
 
@@ -49,7 +49,7 @@ app.prepare().then(() => {
   });
 
   /**
-   * 모든 get 요청을 next의 get 요청 핸들러로 처리한다.
+   * 위를 제외한 get 요청을 next의 get 요청 핸들러로 처리한다.
    */
   server.get('*', (req, res) => {
     return handle(req, res);

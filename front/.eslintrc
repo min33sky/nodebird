@@ -17,9 +17,7 @@
   "rules": {
     "linebreak-style": "off",
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
-    "react/jsx-indent": "off",
     "no-underscore-dangle": "off",
-    "react/forbid-prop-types": "off",
     "no-multi-spaces": "off",
     "indent": "off",
     "no-trailing-spaces": "off",

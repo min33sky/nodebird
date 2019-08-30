@@ -43,7 +43,6 @@ function logoutApi() {
 
 function loadUserApi(id) {
   // id가 있으면 특정 사용자 정보. 없으면 로그인 한 사용자 정보
-  console.log('아이디 :', id);
   return axios.get(id ? `/user/${id}` : '/user', {
     withCredentials: true,
   });
@@ -102,7 +101,6 @@ function* signUp(action) {
 function* loadUser(action) {
   try {
     const result = yield call(loadUserApi, action.data);
-    console.log('유저 정보 : ', result);
     yield put({
       type: LOAD_USER_SUCCESS,
       data: result.data,

@@ -16,10 +16,12 @@ const User = ({ id }) => {
   const { userInfo } = useSelector((state) => state.user);
 
   useEffect(() => {
+    // 사용자 정보 불러오기
     dispatch({
       type: LOAD_USER_REQUEST,
       data: id,
     });
+    // 사용자가 작성한 게시물 불러오기
     dispatch({
       type: LOAD_USER_POSTS_REQUEST,
       data: id,

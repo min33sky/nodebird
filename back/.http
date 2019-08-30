@@ -11,7 +11,7 @@ content-type: application/json
   "password": "qwe123"
 }
 
-###
+### 로그인
 POST http://localhost:8080/api/user/login HTTP/1.1
 content-type: application/json
 
@@ -19,10 +19,16 @@ content-type: application/json
   "userId": "messi", "password": "qwe123"
 }
 
-###
+### 로그아웃
+POST http://localhost:8080/api/user/logout HTTP/1.1
+Content-Type: application/json
+
+{}
+
+### 로그인한 사용자 정보 불러오기
 GET http://localhost:8080/api/user HTTP/1.1
 
-###
+### 게시물 작성
 POST http://localhost:8080/api/post HTTP/1.1
 Content-Type: application/json
 
@@ -31,11 +37,22 @@ Content-Type: application/json
   "UserId": 1
 }
 
-###
+### 모든 게시물 불러오기
 GET http://localhost:8080/api/posts HTTP/1.1
 
-###
+### 해시태그로 게시물 검색
 GET http://localhost:8080/api/hashtag/psg HTTP/1.1
 
-###
+### 특정 사용자의 게시물 불러오기
 GET http://localhost:8080/api/user/4/posts HTTP/1.1
+
+### 댓글 작성
+POST http://localhost:8080/api/post/26/comment HTTP/1.1
+Content-Type: application/json
+
+{
+  "content": "댓글 테스트5"
+}
+
+### 댓글들 불러오기
+GET http://localhost:8080/api/post/26/comments HTTP/1.1

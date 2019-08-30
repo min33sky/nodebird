@@ -30,7 +30,6 @@ router.get('/', (req, res) => {
  * 특정 사용자 정보 불러오기
  */
 router.get('/:id', async (req, res, next) => {
-  console.log('아이디 : ', req.params.id);
   try {
     const user = await db.User.findOne({
       where: { id: parseInt(req.params.id, 10) },
@@ -86,7 +85,6 @@ router.post('/', async (req, res, next) => {
       userId: req.body.userId,
       password: hashedPassword,
     });
-    console.log(newUser);
     return res.status(200).json(newUser);
   } catch (error) {
     console.error(error);
@@ -144,7 +142,6 @@ router.post('/login', (req, res, next) => {
         // 비밀번호는 포함하지 않는다.
         attributes: ['id', 'nickname', 'userId'],
       });
-      console.log('fullUser :', fullUser);
       return res.json(fullUser);
     });
   })(req, res, next);

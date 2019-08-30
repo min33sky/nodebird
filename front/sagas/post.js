@@ -1,4 +1,4 @@
-import { all, fork, delay, put, takeLatest, call } from 'redux-saga/effects';
+import { all, fork, put, takeLatest, call } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   ADD_POST_SUCCESS,
@@ -11,11 +11,14 @@ import {
   LOAD_MAIN_POSTS_FAILURE,
   LOAD_MAIN_POSTS_SUCCESS,
   LOAD_HASHTAG_POSTS_REQUEST,
-  LOAD_USER_POSTS_REQUEST,
   LOAD_HASHTAG_POSTS_SUCCESS,
   LOAD_HASHTAG_POSTS_FAILURE,
+  LOAD_USER_POSTS_REQUEST,
   LOAD_USER_POSTS_FAILURE,
   LOAD_USER_POSTS_SUCCESS,
+  LOAD_COMMENTS_REQUEST,
+  LOAD_COMMENTS_FAILURE,
+  LOAD_COMMENTS_SUCCESS,
 } from '../reducers/post';
 
 function addPostApi(data) {
@@ -40,15 +43,27 @@ function loadUserPostsAPI(id) {
   return axios.get(`/user/${id}/posts`);
 }
 
-// TODO: 댓글 불러오기 API 작성
-// function addCommentApi() {}
+function loadCommentsApi(postId) {
+  return axios.get(`/post/${postId}/comments`);
+}
+
+function addCommentApi(comment) {
+  return axios.post(
+    `/post/${comment.postId}/comment`,
+    {
+      content: comment.content,
+    },
+    {
+      withCredentials: true,
+    },
+  );
+}
 
 // ***** Worker *****/
 
 function* addPost(action) {
   try {
     const result = yield call(addPostApi, action.data);
-    console.log(result.data);
     yield put({
       type: ADD_POST_SUCCESS,
       data: result.data,
@@ -63,11 +78,12 @@ function* addPost(action) {
 
 function* addComment(action) {
   try {
-    yield delay(2000);
+    const result = yield call(addCommentApi, action.data);
     yield put({
       type: ADD_COMMENT_SUCCESS,
       data: {
         postId: action.data.postId,
+        comment: result.data,
       },
     });
   } catch (error) {
@@ -111,7 +127,6 @@ function* loadHashtagPosts(action) {
 function* loadUserPosts(action) {
   try {
     const result = yield call(loadUserPostsAPI, action.data);
-    console.log(result.data);
     yield put({
       type: LOAD_USER_POSTS_SUCCESS,
       data: result.data,
@@ -121,6 +136,24 @@ function* loadUserPosts(action) {
     yield put({
       type: LOAD_USER_POSTS_FAILURE,
       error: e,
+    });
+  }
+}
+
+function* loadComments(action) {
+  try {
+    const result = yield call(loadCommentsApi, action.id);
+    yield put({
+      type: LOAD_COMMENTS_SUCCESS,
+      data: {
+        comments: result.data,
+        postId: action.id,
+      },
+    });
+  } catch (error) {
+    yield put({
+      type: LOAD_COMMENTS_FAILURE,
+      error,
     });
   }
 }
@@ -147,6 +180,10 @@ function* watchLoadUserPosts() {
   yield takeLatest(LOAD_USER_POSTS_REQUEST, loadUserPosts);
 }
 
+function* watchLoadComments() {
+  yield takeLatest(LOAD_COMMENTS_REQUEST, loadComments);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
@@ -154,5 +191,6 @@ export default function* postSaga() {
     fork(watchAddComment),
     fork(watchLoadHashtagPosts),
     fork(watchLoadUserPosts),
+    fork(watchLoadComments),
   ]);
 }

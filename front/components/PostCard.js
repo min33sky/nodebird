@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
 import { Card, Icon, Button, Avatar, List, Form, Input, Comment } from 'antd';
 import PropTypes from 'prop-types';
-import { ADD_COMMENT_REQUEST } from '../reducers/post';
+import { ADD_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../reducers/post';
 
 /**
  * 게시글 컴포넌트 & 댓글 컴포넌트
@@ -24,6 +24,13 @@ const PostCard = ({ post }) => {
   // 댓글 창 열기
   const onToggleComment = useCallback(() => {
     setCommentFormOpened((prev) => !prev);
+    // 댓글창을 열때만 댓글들을 불러온다.
+    if (!commentFormOpened) {
+      dispatch({
+        type: LOAD_COMMENTS_REQUEST,
+        id: post.id,
+      });
+    }
   }, []);
 
   const onSubmitComment = useCallback(
@@ -36,10 +43,11 @@ const PostCard = ({ post }) => {
         type: ADD_COMMENT_REQUEST,
         data: {
           postId: post.id,
+          content: commentText,
         },
       });
     },
-    [me && me.id],
+    [me && me.id, commentText],
   );
 
   const onChangeCommentText = useCallback((e) => {
@@ -63,6 +71,10 @@ const PostCard = ({ post }) => {
         <Card.Meta
           avatar={
             <Link
+              // ! href={`/user/${post.User.id}`}는 프론트 주소가 아니라 서버주소
+              //   동적 라우팅이 안되기 때문에 express에서 처리하므로
+              //   프론트에서 처리할 수 있게 바꾼다.
+              // * as는 queryString 주소를 바꿔준다.
               href={{ pathname: '/user', query: { id: post.User.id } }}
               as={`/user/${post.User.id}`}
             >
@@ -124,7 +136,14 @@ const PostCard = ({ post }) => {
               <li>
                 <Comment
                   author={item.User.nickname}
-                  avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
+                  avatar={
+                    <Link
+                      href={{ pathname: '/user', query: { id: post.User.id } }}
+                      as={`/user/${post.User.id}`}
+                    >
+                      <Avatar>{item.User.nickname[0]}</Avatar>
+                    </Link>
+                  }
                   content={item.content}
                 />
               </li>

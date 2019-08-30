@@ -9,6 +9,11 @@ const router = express.Router();
  */
 router.post('/', async (req, res, next) => {
   try {
+    if (!req.user) {
+      // 비로그인시 글쓰기 방지
+      return res.status(401).send('Service requiring login');
+    }
+
     const hashtags = req.body.content.match(/#[^\s]+/g);
     const newPost = await db.Post.create({
       content: req.body.content,
@@ -24,7 +29,6 @@ router.post('/', async (req, res, next) => {
             },
           }),),
       );
-      console.log('해쉬태그 : ', result);
       await newPost.addHashtags(result.map((e) => e[0]));
     }
 
@@ -52,6 +56,82 @@ router.post('/', async (req, res, next) => {
   } catch (error) {
     console.error(error);
     next(error);
+  }
+});
+
+/**
+ * GET /api/post/:id/comments
+ * 게시물 댓글들 불러오기
+ */
+router.get('/:id/comments', async (req, res, next) => {
+  try {
+    const post = await db.Post.findOne({
+      where: { id: parseInt(req.params.id, 10) },
+    });
+    if (!post) {
+      return res.status(404).send('Post does not exist');
+    }
+    const comments = await db.Comment.findAll({
+      where: {
+        PostId: parseInt(req.params.id, 10),
+      },
+      include: [
+        {
+          model: db.User,
+          attributes: ['id', 'nickname'],
+        },
+      ],
+      order: [['createdAt', 'ASC']],
+    });
+    if (!comments) {
+      return res.status(404).send('Comments does not exist');
+    }
+    return res.json(comments);
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
+/**
+ * POST /api/post/:id/comment
+ * 댓글 작성
+ */
+router.post('/:id/comment', async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).send('Service requiring login');
+    }
+    const post = await db.Post.findOne({
+      where: parseInt(req.params.id, 10),
+    });
+    if (!post) {
+      return res.status(404).send('Post does not exist');
+    }
+    const newComment = await db.Comment.create({
+      PostId: post.id,
+      UserId: req.user.id,
+      content: req.body.content,
+    });
+
+    await post.addComment(newComment.id); // 게시물에 댓글 연결 (Sequelize)
+
+    const comment = await db.Comment.findOne({
+      where: {
+        id: newComment.id,
+      },
+      // 댓글 작성자 정보를 가져온다.
+      include: [
+        {
+          model: db.User,
+          attributes: ['id', 'nickname'],
+        },
+      ],
+    });
+    return res.json(comment);
+  } catch (error) {
+    console.error(error);
+    return next(error);
   }
 });
 

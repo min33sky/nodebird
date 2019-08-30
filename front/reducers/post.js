@@ -59,8 +59,8 @@ export const ADD_COMMENT_SUCCESS = 'ADD_COMMENT_SUCCESS';
 export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
 // 댓글 로드
 export const LOAD_COMMENTS_REQUEST = 'LOAD_COMMENTS_REQUEST';
-export const LOAD_COMMENST_SUCCESS = 'LOAD_COMMENTS_SUCCESS';
-export const LOAD_COMMESNT_FAILURE = 'LOAD_COMMENTS_FAILURE';
+export const LOAD_COMMENTS_SUCCESS = 'LOAD_COMMENTS_SUCCESS';
+export const LOAD_COMMENTS_FAILURE = 'LOAD_COMMENTS_FAILURE';
 
 // 리트윗
 export const RETWEET_REQUEST = 'RETWEET_REQUEST';
@@ -117,10 +117,11 @@ const reducer = (state = initialState, action) => {
       );
       const post = state.mainPosts[postIndex];
       // 댓글 추가
-      const Comments = [...post.Comments, dummyComments];
+      const Comments = [...post.Comments, action.data.comment];
       // 게시물 업데이트
       const mainPosts = [...state.mainPosts];
       mainPosts[postIndex] = { ...post, Comments };
+      1;
       return {
         ...state,
         isAddingComment: false,
@@ -135,6 +136,31 @@ const reducer = (state = initialState, action) => {
         isAddingComment: false,
         addCommentErrorReason: action.error,
       };
+
+    case LOAD_COMMENTS_REQUEST:
+      return {
+        ...state,
+      };
+
+    case LOAD_COMMENTS_SUCCESS: {
+      const postIndex = state.mainPosts.findIndex(
+        (v) => v.id === action.data.postId,
+      );
+      const post = state.mainPosts[postIndex];
+      const Comments = [...action.data.comments];
+      const mainPosts = [...state.mainPosts];
+      mainPosts[postIndex] = { ...post, Comments };
+      return {
+        ...state,
+        mainPosts,
+      };
+    }
+
+    case LOAD_COMMENTS_FAILURE: {
+      return {
+        ...state,
+      };
+    }
 
     case LOAD_HASHTAG_POSTS_REQUEST:
     case LOAD_USER_POSTS_REQUEST:
