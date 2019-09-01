@@ -3,7 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
 import { Card, Icon, Button, Avatar, List, Form, Input, Comment } from 'antd';
 import PropTypes from 'prop-types';
-import { ADD_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../reducers/post';
+import {
+  ADD_COMMENT_REQUEST,
+  LOAD_COMMENTS_REQUEST,
+  UNLIKE_POST_REQUEST,
+  LIKE_POST_REQUEST,
+} from '../reducers/post';
 import PostImages from './PostImages';
 
 /**
@@ -16,6 +21,7 @@ const PostCard = ({ post }) => {
   const { me } = useSelector((state) => state.user);
   const { addedComment, isAddingComment } = useSelector((state) => state.post);
   const dispatch = useDispatch();
+  const liked = me && post.Likers && post.Likers.find((v) => v.id === me.id);
 
   // Lifecycle Function
   useEffect(() => {
@@ -55,6 +61,24 @@ const PostCard = ({ post }) => {
     setCommentText(e.target.value);
   }, []);
 
+  // 좋아요 토글
+  const onToggleLike = useCallback(() => {
+    if (!me) {
+      return alert('로그인이 필요합니다.');
+    }
+    if (liked) {
+      dispatch({
+        type: UNLIKE_POST_REQUEST,
+        data: post.id,
+      });
+    } else {
+      dispatch({
+        type: LIKE_POST_REQUEST,
+        data: post.id,
+      });
+    }
+  }, [me && me.id, post && post.id, liked]);
+
   return (
     <div>
       <Card
@@ -63,7 +87,13 @@ const PostCard = ({ post }) => {
         cover={post.Images[0] && <PostImages images={post.Images} />}
         actions={[
           <Icon type="retweet" key="retweet" />,
-          <Icon type="heart" key="heart" />,
+          <Icon
+            type="heart"
+            key="heart"
+            theme={liked ? 'twoTone' : 'outlined'}
+            twoToneColor="#eb2f96"
+            onClick={onToggleLike}
+          />,
           <Icon type="message" key="message" onClick={onToggleComment} />,
           <Icon type="ellipsis" key="ellipsis" />,
         ]}

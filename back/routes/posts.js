@@ -11,7 +11,8 @@ router.get('/', async (req, res, next) => {
   try {
     const posts = await db.Post.findAll({
       // 게시물에 대한 유저 정보와 이미지 정보까지 함께 불러온다.
-      // [{ 게시물 정보, User: {id, nickname, userId}, Images: [{src: 이미지주소}, ...]}, ...]
+      // [{ 게시물 정보, User: {id, nickname, userId},
+      //    Images: [{src: 이미지주소}, ...]}, Likers: [{id; 사용자아이디}, ...] ...]
       include: [
         {
           model: db.User,
@@ -19,6 +20,12 @@ router.get('/', async (req, res, next) => {
         },
         {
           model: db.Image,
+        },
+        {
+          model: db.User,
+          as: 'Likers',
+          through: 'Like',
+          attributes: ['id'],
         },
       ],
       order: [['createdAt', 'DESC']], // 생성일 내림차순으로 정렬

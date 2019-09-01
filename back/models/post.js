@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     db.Post.belongsTo(db.Post, { as: 'Retweet' }); // RetweetId 컬럼 생겨요
     // 다대다 관계는 모델 두 곳 모두 설정해야한다.
     db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' });
-    db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' });
+    db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' }); // addLiker, addLikers, removeLiker 메서드 생성
   };
   return Post;
 };

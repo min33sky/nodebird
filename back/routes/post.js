@@ -186,4 +186,36 @@ router.post('/:id/comment', isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.post('/:id/like', isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await db.Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('Post does not exist');
+    }
+    await post.addLiker(req.user.id);
+    return res.json({
+      userId: req.user.id,
+    });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
+router.delete('/:id/like', isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await db.Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('Post does not exist');
+    }
+    await post.removeLiker(req.user.id);
+    return res.json({
+      userId: req.user.id,
+    });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
 module.exports = router;
