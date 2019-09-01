@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const db = require('../models');
+const { isLoggedIn } = require('./middleware');
 
 const router = express.Router();
 
@@ -9,11 +10,7 @@ const router = express.Router();
  * GET /api/user
  * 로그인 한 사용자 정보 가져오기
  */
-router.get('/', (req, res) => {
-  if (!req.user) {
-    // 로그인 하지않은 유저
-    return res.status(401).send('로그인하지 않은 사용자입니다..');
-  }
+router.get('/', isLoggedIn, (req, res) => {
   // ! 보안상 비밀번호는 보내지 않는다.
   // ? TypeError: Converting circular structure to JSON 해결하기
   // sequelize에서 온 객체가 JSON 형태가 아니기 때문에 변환을 해야된다.
@@ -31,6 +28,7 @@ router.get('/', (req, res) => {
  */
 router.get('/:id', async (req, res, next) => {
   try {
+    // { 사용자 정보, Posts: [], Followings: [], Follings: [] }
     const user = await db.User.findOne({
       where: { id: parseInt(req.params.id, 10) },
       include: [
@@ -52,6 +50,8 @@ router.get('/:id', async (req, res, next) => {
       ],
       attributes: ['id', 'nickname'],
     });
+
+    // * 팔로워, 팔로잉은 개인 정보 유출이 될 수 있으므로 몇 명인지만 보내준다.
     const jsonUser = user.toJSON();
     jsonUser.Posts = jsonUser.Posts ? jsonUser.Posts.length : 0;
     jsonUser.Followings = jsonUser.Followings ? jsonUser.Followings.length : 0;
@@ -153,6 +153,7 @@ router.post('/login', (req, res, next) => {
  */
 router.get('/:id/posts', async (req, res, next) => {
   try {
+    // [{ 게시물 내용, User: {id, nickname}}, Images: [] ...]
     const posts = await db.Post.findAll({
       where: {
         UserId: parseInt(req.params.id, 10),
@@ -162,6 +163,9 @@ router.get('/:id/posts', async (req, res, next) => {
         {
           model: db.User,
           attributes: ['id', 'nickname'],
+        },
+        {
+          model: db.Image,
         },
       ],
     });

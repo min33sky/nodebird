@@ -19,11 +19,14 @@ import {
   LOAD_COMMENTS_REQUEST,
   LOAD_COMMENTS_FAILURE,
   LOAD_COMMENTS_SUCCESS,
+  UPLOAD_IMAGES_SUCCESS,
+  UPLOAD_IMAGES_FAILURE,
+  UPLOAD_IMAGES_REQUEST,
 } from '../reducers/post';
 
-function addPostApi(data) {
+function addPostApi(formData) {
   // 로그인 전용이므로 쿠키도 같이 보내준다.
-  return axios.post('/post', data, {
+  return axios.post('/post', formData, {
     withCredentials: true,
   });
 }
@@ -57,6 +60,13 @@ function addCommentApi(comment) {
       withCredentials: true,
     },
   );
+}
+
+function uploadImagesApi(formData) {
+  // ! 게시물이 등록되기 전에 이미지가 먼저 올라가므로 게시물 번호를 알 수 없다.
+  return axios.post(`/post/images`, formData, {
+    withCredentials: true,
+  });
 }
 
 // ***** Worker *****/
@@ -158,6 +168,22 @@ function* loadComments(action) {
   }
 }
 
+function* uploadImages(action) {
+  try {
+    const result = yield call(uploadImagesApi, action.data);
+    yield put({
+      type: UPLOAD_IMAGES_SUCCESS,
+      data: result.data, // 업로드된 이미지의 주소들
+    });
+  } catch (error) {
+    console.error(error);
+    yield put({
+      type: UPLOAD_IMAGES_FAILURE,
+      error,
+    });
+  }
+}
+
 // ***** Watcher ***** //
 
 function* watchAddPost() {
@@ -184,13 +210,18 @@ function* watchLoadComments() {
   yield takeLatest(LOAD_COMMENTS_REQUEST, loadComments);
 }
 
+function* watchUploadImages() {
+  yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
     fork(watchLoadPosts),
     fork(watchAddComment),
+    fork(watchLoadComments),
     fork(watchLoadHashtagPosts),
     fork(watchLoadUserPosts),
-    fork(watchLoadComments),
+    fork(watchUploadImages),
   ]);
 }

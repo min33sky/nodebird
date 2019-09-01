@@ -9,12 +9,15 @@ const passportConfig = require('./passport');
 const db = require('./models');
 const api = require('./routes');
 
+const PORT_NUMBER = 8080;
+
 dotenv.config();
 const app = express();
 db.sequelize.sync();
 passportConfig();
 
 app.use(morgan('dev'));
+app.use('/', express.static('uploads'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -46,6 +49,6 @@ app.get('/', (req, res) => {
   res.send('Hello, Server');
 });
 
-app.listen(8080, () => {
-  console.log('Server is running on port 8080');
+app.listen(PORT_NUMBER, () => {
+  console.log(`Server is running on port ${PORT_NUMBER}`);
 });

@@ -4,6 +4,10 @@ import PropTypes from 'prop-types';
 import { LOAD_HASHTAG_POSTS_REQUEST } from '../reducers/post';
 import PostCard from '../components/PostCard';
 
+/**
+ * GET /hashtag/:tag
+ * 해시태그로 게시글 검색 페이지
+ */
 const Hashtag = ({ tag }) => {
   const { mainPosts } = useSelector((state) => state.post);
   const dispatch = useDispatch();
@@ -33,7 +37,6 @@ Hashtag.propTypes = {
  * - ComponentDidMount보다 먼저 실행되므로 SSR에서 활용한다.
  */
 Hashtag.getInitialProps = async (context) => {
-  console.log('getInitialProps: ', context.query.tag);
   return {
     tag: context.query.tag,
   };

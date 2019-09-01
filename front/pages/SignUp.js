@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Checkbox, Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
-import { signUpAction, SIGN_UP_REQUEST } from '../reducers/user';
+import { signUpAction } from '../reducers/user';
 
 /**
  * Custom Hook

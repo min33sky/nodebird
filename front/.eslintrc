@@ -21,6 +21,7 @@
     "no-multi-spaces": "off",
     "indent": "off",
     "no-trailing-spaces": "off",
-    "comma-dangle": "off"
+    "comma-dangle": "off",
+    "jsx-a11y/click-events-have-key-events": "off"
   }
 }

@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
 
-const PORT_NUMBER = 3060;
+const CLIENT_PORT = 3060;
 
 /**
  * NEXT에서 동적 라우팅이 불가능하므로
@@ -55,7 +55,7 @@ app.prepare().then(() => {
     return handle(req, res);
   });
 
-  server.listen(PORT_NUMBER, () => {
-    console.log(`next+express running on port ${PORT_NUMBER}`);
+  server.listen(CLIENT_PORT, () => {
+    console.log(`next+express running on port ${CLIENT_PORT}`);
   });
 });

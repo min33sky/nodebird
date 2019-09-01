@@ -9,32 +9,25 @@ export const initialState = {
   addedComment: false, // 댓글 추가 완료
 };
 
-const dummyComments = {
-  id: 1,
-  User: {
-    id: 3,
-    nickname: '네이마르',
-  },
-  createdAt: new Date(),
-  content: '더미 댓글입니다.',
-};
-
 // 메인 포스트 관련
 export const LOAD_MAIN_POSTS_REQUEST = 'LOAD_MAIN_POSTS_REQUEST';
 export const LOAD_MAIN_POSTS_SUCCESS = 'LOAD_MAIN_POSTS_SUCCESS';
 export const LOAD_MAIN_POSTS_FAILURE = 'LOAD_MAIN_POSTS_FAILURE';
+
 // 해쉬태그로 포스트 검색
 export const LOAD_HASHTAG_POSTS_REQUEST = 'LOAD_HASHTAG_POSTS_REQUEST';
 export const LOAD_HASHTAG_POSTS_SUCCESS = 'LOAD_HASHTAG_POSTS_SUCCESS';
 export const LOAD_HASHTAG_POSTS_FAILURE = 'LOAD_HASHTAG_POSTS_FAILURE';
+
 // 사용자에 따른 포스트 검색
 export const LOAD_USER_POSTS_REQUEST = 'LOAD_USER_POSTS_REQUEST';
 export const LOAD_USER_POSTS_SUCCESS = 'LOAD_USER_POSTS_SUCCESS';
 export const LOAD_USER_POSTS_FAILURE = 'LOAD_USER_POSTS_FAILURE';
+
 // 이미지 업로드
-export const UPLOAD_IMAGE_REQUEST = 'UPLOAD_IMAGE_REQUEST';
-export const UPLOAD_IMAGE_SUCCESS = 'UPLOAD_IMAGE_SUCCESS';
-export const UPLOAD_IMAGE_FAILURE = 'UPLOAD_IMAGE_FAILURE';
+export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
+export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
+export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
 
 // 이미지 업로드 취소 (비동기 처리가 필요 없으므로 하나로 처리)
 export const REMOVE_IMAGE = 'REMOVE_IMAGE';
@@ -48,6 +41,7 @@ export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
 export const LIKE_POST_REQUEST = 'LIKE_POST_REQUEST';
 export const LIKE_POST_SUCCESS = 'LIKE_POST_SUCCESS';
 export const LIKE_POST_FAILURE = 'LIKE_POST_FAILURE';
+
 // 포스트 싫어요
 export const UNLIKE_POST_REQUEST = 'UNLIKE_POST_REQUEST';
 export const UNLIKE_POST_SUCCESS = 'UNLIKE_POST_SUCCESS';
@@ -57,6 +51,7 @@ export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
 export const ADD_COMMENT_REQUEST = 'ADD_COMMENT_REQUEST';
 export const ADD_COMMENT_SUCCESS = 'ADD_COMMENT_SUCCESS';
 export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
+
 // 댓글 로드
 export const LOAD_COMMENTS_REQUEST = 'LOAD_COMMENTS_REQUEST';
 export const LOAD_COMMENTS_SUCCESS = 'LOAD_COMMENTS_SUCCESS';
@@ -71,11 +66,6 @@ export const RETWEET_FAILURE = 'RETWEET_FAILURE';
 export const REMOVE_POST_REQUEST = 'REMOVE_POST_REQUEST';
 export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
-
-export const addPostRequest = (data) => ({
-  type: ADD_POST_REQUEST,
-  data,
-});
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -93,6 +83,7 @@ const reducer = (state = initialState, action) => {
         isAddingPost: false,
         addedPost: true,
         mainPosts: [action.data, ...state.mainPosts],
+        imagePaths: [], // 미리보기 이미지 초기화
       };
 
     case ADD_POST_FAILURE:
@@ -100,6 +91,31 @@ const reducer = (state = initialState, action) => {
         ...state,
         addPostErrorReason: action.error,
       };
+
+    case UPLOAD_IMAGES_REQUEST:
+      return {
+        ...state,
+      };
+
+    case UPLOAD_IMAGES_SUCCESS:
+      return {
+        ...state,
+        imagePaths: [...state.imagePaths, ...action.data], // 미리보기 업데이트
+      };
+
+    case UPLOAD_IMAGES_FAILURE:
+      return {
+        ...state,
+      };
+
+    case REMOVE_IMAGE: {
+      return {
+        ...state,
+        imagePaths: state.imagePaths.filter(
+          (image, index) => index !== action.index,
+        ),
+      };
+    }
 
     case ADD_COMMENT_REQUEST:
       return {
@@ -114,6 +130,7 @@ const reducer = (state = initialState, action) => {
       // 댓글을 달 게시물 찾기
       const postIndex = state.mainPosts.findIndex(
         (v) => v.id === action.data.postId,
+        2,
       );
       const post = state.mainPosts[postIndex];
       // 댓글 추가
@@ -121,7 +138,6 @@ const reducer = (state = initialState, action) => {
       // 게시물 업데이트
       const mainPosts = [...state.mainPosts];
       mainPosts[postIndex] = { ...post, Comments };
-      1;
       return {
         ...state,
         isAddingComment: false,

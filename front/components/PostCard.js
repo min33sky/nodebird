@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Card, Icon, Button, Avatar, List, Form, Input, Comment } from 'antd';
 import PropTypes from 'prop-types';
 import { ADD_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../reducers/post';
+import PostImages from './PostImages';
 
 /**
  * 게시글 컴포넌트 & 댓글 컴포넌트
@@ -59,7 +60,7 @@ const PostCard = ({ post }) => {
       <Card
         // '+'를 변수앞에 붙이면 parseInt()를 대체할 수 있다.
         key={+post.createdAt}
-        cover={post.img && <img alt="example" src={post.img} />}
+        cover={post.Images[0] && <PostImages images={post.Images} />}
         actions={[
           <Icon type="retweet" key="retweet" />,
           <Icon type="heart" key="heart" />,
@@ -72,8 +73,8 @@ const PostCard = ({ post }) => {
           avatar={
             <Link
               // ! href={`/user/${post.User.id}`}는 프론트 주소가 아니라 서버주소
-              //   동적 라우팅이 안되기 때문에 express에서 처리하므로
-              //   프론트에서 처리할 수 있게 바꾼다.
+              //   동적 라우팅이 안되기 때문에 라우팅을 express에서 처리하므로
+              //   프론트가 인식할 수 있는 주소로 바꿔준다..
               // * as는 queryString 주소를 바꿔준다.
               href={{ pathname: '/user', query: { id: post.User.id } }}
               as={`/user/${post.User.id}`}
@@ -161,7 +162,7 @@ PostCard.propTypes = {
     id: PropTypes.number.isRequired,
     User: PropTypes.object.isRequired,
     content: PropTypes.string.isRequired,
-    img: PropTypes.string.isRequired,
+    Images: PropTypes.array,
     createdAt: PropTypes.object,
     Comments: PropTypes.array,
   }).isRequired,

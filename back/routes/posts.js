@@ -9,12 +9,16 @@ const router = express.Router();
  */
 router.get('/', async (req, res, next) => {
   try {
-    // 포스트 모두 가져오기 & 유저 정보도 같이 가져오자
     const posts = await db.Post.findAll({
+      // 게시물에 대한 유저 정보와 이미지 정보까지 함께 불러온다.
+      // [{ 게시물 정보, User: {id, nickname, userId}, Images: [{src: 이미지주소}, ...]}, ...]
       include: [
         {
           model: db.User,
           attributes: ['id', 'nickname', 'userId'],
+        },
+        {
+          model: db.Image,
         },
       ],
       order: [['createdAt', 'DESC']], // 생성일 내림차순으로 정렬
