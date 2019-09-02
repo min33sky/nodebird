@@ -27,6 +27,19 @@ router.get('/', async (req, res, next) => {
           through: 'Like',
           attributes: ['id'],
         },
+        {
+          model: db.Post,
+          as: 'Retweet',
+          include: [
+            {
+              model: db.User,
+              attributes: ['id', 'nickname'],
+            },
+            {
+              model: db.Image,
+            },
+          ],
+        },
       ],
       order: [['createdAt', 'DESC']], // 생성일 내림차순으로 정렬
     });

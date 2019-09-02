@@ -157,7 +157,7 @@ router.get('/:id/posts', async (req, res, next) => {
     const posts = await db.Post.findAll({
       where: {
         UserId: parseInt(req.params.id, 10),
-        RetweetId: null,
+        RetweetId: null, // 리트윗한건 가져오지 않는다.
       },
       include: [
         {

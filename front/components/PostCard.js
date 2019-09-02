@@ -8,8 +8,10 @@ import {
   LOAD_COMMENTS_REQUEST,
   UNLIKE_POST_REQUEST,
   LIKE_POST_REQUEST,
+  RETWEET_REQUEST,
 } from '../reducers/post';
 import PostImages from './PostImages';
+import PostCardContent from './PostCardContent';
 
 /**
  * 게시글 컴포넌트 & 댓글 컴포넌트
@@ -79,14 +81,29 @@ const PostCard = ({ post }) => {
     }
   }, [me && me.id, post && post.id, liked]);
 
+  /**
+   * 리트윗
+   */
+  const onClickRetweet = useCallback(() => {
+    if (!me) {
+      return alert('로그인이 필요합니다.');
+    }
+    dispatch({
+      type: RETWEET_REQUEST,
+      data: post.id,
+    });
+  }, [me && me.id, post && post.id]);
+
   return (
     <div>
       <Card
         // '+'를 변수앞에 붙이면 parseInt()를 대체할 수 있다.
         key={+post.createdAt}
-        cover={post.Images[0] && <PostImages images={post.Images} />}
+        cover={
+          post.Images && post.Images[0] && <PostImages images={post.Images} />
+        }
         actions={[
-          <Icon type="retweet" key="retweet" />,
+          <Icon type="retweet" key="retweet" onClick={onClickRetweet} />,
           <Icon
             type="heart"
             key="heart"
@@ -97,46 +114,57 @@ const PostCard = ({ post }) => {
           <Icon type="message" key="message" onClick={onToggleComment} />,
           <Icon type="ellipsis" key="ellipsis" />,
         ]}
+        title={
+          post.RetweetId ? `${post.User.nickname}님이 리트윗하셨습니다.` : null
+        }
         extra={<Button>팔로우</Button>}
       >
-        <Card.Meta
-          avatar={
-            <Link
-              // ! href={`/user/${post.User.id}`}는 프론트 주소가 아니라 서버주소
-              //   동적 라우팅이 안되기 때문에 라우팅을 express에서 처리하므로
-              //   프론트가 인식할 수 있는 주소로 바꿔준다..
-              // * as는 queryString 주소를 바꿔준다.
-              href={{ pathname: '/user', query: { id: post.User.id } }}
-              as={`/user/${post.User.id}`}
-            >
-              <a>
-                <Avatar>{post.User.nickname[0]}</Avatar>
-              </a>
-            </Link>
-          }
-          title={post.User.nickname}
-          description={
-            <div>
-              {post.content.split(/(#[^\s]+)/g).map((value) => {
-                if (value.match(/#[^\s]+/)) {
-                  return (
-                    <Link
-                      href={{
-                        pathname: '/hashtag',
-                        query: { tag: value.slice(1) },
-                      }}
-                      as={`/hashtag/${value.slice(1)}`}
-                      key={value}
-                    >
-                      <a>{value}</a>
-                    </Link>
-                  );
-                }
-                return value;
-              })}
-            </div>
-          }
-        />
+        {post.RetweetId && post.Retweet ? (
+          <Card
+            cover={
+              post.Retweet.Images[0] && (
+                <PostImages images={post.Retweet.Images} />
+              )
+            }
+          >
+            <Card.Meta
+              avatar={
+                <Link
+                  // ! href={`/user/${post.User.id}`}는 프론트 주소가 아니라 서버주소
+                  //   동적 라우팅이 안되기 때문에 라우팅을 express에서 처리하므로
+                  //   프론트가 인식할 수 있는 주소로 바꿔준다..
+                  // * as는 queryString 주소를 바꿔준다.
+                  href={{
+                    pathname: '/user',
+                    query: { id: post.Retweet.User.id },
+                  }}
+                  as={`/user/${post.Retweet.User.id}`}
+                >
+                  <a>
+                    <Avatar>{post.Retweet.User.nickname[0]}</Avatar>
+                  </a>
+                </Link>
+              }
+              title={post.Retweet.User.nickname}
+              description={<PostCardContent postData={post.Retweet.content} />} // a tag x -> Link
+            />
+          </Card>
+        ) : (
+          <Card.Meta
+            avatar={
+              <Link
+                href={{ pathname: '/user', query: { id: post.User.id } }}
+                as={`/user/${post.User.id}`}
+              >
+                <a>
+                  <Avatar>{post.User.nickname[0]}</Avatar>
+                </a>
+              </Link>
+            }
+            title={post.User.nickname}
+            description={<PostCardContent postData={post.content} />} // a tag x -> Link
+          />
+        )}
       </Card>
       {commentFormOpened && (
         <>
@@ -195,6 +223,8 @@ PostCard.propTypes = {
     Images: PropTypes.array,
     createdAt: PropTypes.object,
     Comments: PropTypes.array,
+    RetweetId: PropTypes.number.isRequired,
+    Retweet: PropTypes.object,
   }).isRequired,
 };
 

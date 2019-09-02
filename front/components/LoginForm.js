@@ -24,19 +24,24 @@ const LoginForm = () => {
   return (
     <Form onSubmit={onSubmitForm} style={{ padding: 10 }}>
       <div style={{ marginBottom: 10 }}>
-        <label htmlFor="login_field">아이디</label>
-        <br />
-        <input id="login_field" value={id} onChange={onChangeId} required />
+        <label htmlFor="login_field">
+          아이디
+          <br />
+          <input id="login_field" value={id} onChange={onChangeId} required />
+        </label>
       </div>
       <div style={{ marginBottom: 10 }}>
-        <label htmlFor="password">패스워드</label>
-        <br />
-        <input
-          id="password"
-          value={password}
-          onChange={onChangePassword}
-          required
-        />
+        <label htmlFor="password">
+          패스워드
+          <br />
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={onChangePassword}
+            required
+          />
+        </label>
       </div>
       <div>
         <Button type="primary" htmlType="submit" loading={isLoading}>

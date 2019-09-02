@@ -95,6 +95,12 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         {
           model: db.Image,
         },
+        {
+          model: db.User,
+          through: 'Like',
+          as: 'Likers',
+          attributes: ['id'],
+        },
       ],
     });
     res.json(fullPost);
@@ -186,6 +192,10 @@ router.post('/:id/comment', isLoggedIn, async (req, res, next) => {
   }
 });
 
+/**
+ * POST /api/post/:id/like
+ * 좋아요 기능
+ */
 router.post('/:id/like', isLoggedIn, async (req, res, next) => {
   try {
     const post = await db.Post.findOne({ where: { id: req.params.id } });
@@ -202,6 +212,10 @@ router.post('/:id/like', isLoggedIn, async (req, res, next) => {
   }
 });
 
+/**
+ * DELETE /api/post/:id/like
+ * 좋아요 취소
+ */
 router.delete('/:id/like', isLoggedIn, async (req, res, next) => {
   try {
     const post = await db.Post.findOne({ where: { id: req.params.id } });
@@ -212,6 +226,88 @@ router.delete('/:id/like', isLoggedIn, async (req, res, next) => {
     return res.json({
       userId: req.user.id,
     });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
+/**
+ * POST /api/post/:id/retweet
+ * 리트윗
+ */
+router.post('/:id/retweet', isLoggedIn, async (req, res, next) => {
+  try {
+    // 1. 포스트 존재 유무
+    const post = await db.Post.findOne({
+      where: { id: req.params.id },
+      include: [
+        {
+          model: db.Post,
+          as: 'Retweet',
+        },
+      ],
+    });
+    if (!post) {
+      return res.status(404).send('Post does not exist');
+    }
+    // 2. 자신의 글과 자신이 리트윗한 글은 리트윗 금지
+    if (
+      post.UserId === req.user.id
+      || (post.Retweet && post.Retweet.UserId === req.user.id)
+    ) {
+      return res.status(403).send('Do not Retweet post you wrote');
+    }
+    // 3. 이미 리트윗 한 글은 리트윗 금지 ( 리트윗 한 글을 리트윗 || 원본 게시물 )
+    const retweetTargetId = post.RetweetId || post.id;
+    const exPost = await db.Post.findOne({
+      where: {
+        UserId: req.user.id,
+        RetweetId: retweetTargetId,
+      },
+    });
+    if (exPost) {
+      return res.status(403).send('This post has already been retweeted');
+    }
+    // 4. 데이터 생성
+    const retweet = await db.Post.create({
+      UserId: req.user.id,
+      RetweetId: retweetTargetId,
+      content: 'content', // allowNull : false이므로 아무거나 넣어준다.
+    });
+
+    // 5. 게시물과 리트윗 게시물 정보를 조인
+    const retweetWithPrevPost = await db.Post.findOne({
+      where: {
+        id: retweet.id,
+      },
+      include: [
+        {
+          model: db.User,
+          attributes: ['id', 'nickname'],
+        },
+        {
+          model: db.User,
+          as: 'Likers',
+          through: 'Like',
+          attributes: ['id'],
+        },
+        {
+          model: db.Post,
+          as: 'Retweet',
+          include: [
+            {
+              model: db.User,
+              attributes: ['id', 'nickname'],
+            },
+            {
+              model: db.Image,
+            },
+          ],
+        },
+      ],
+    });
+    return res.json(retweetWithPrevPost);
   } catch (error) {
     console.error(error);
     return next(error);

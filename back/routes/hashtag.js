@@ -34,6 +34,19 @@ router.get('/:tag', async (req, res, next) => {
           through: 'Like',
           attributes: ['id'],
         },
+        {
+          model: db.Post,
+          as: 'Retweet',
+          include: [
+            {
+              model: db.User,
+              attributes: ['id', 'nickname'],
+            },
+            {
+              model: db.Image,
+            },
+          ],
+        },
       ],
     });
     res.json(posts);

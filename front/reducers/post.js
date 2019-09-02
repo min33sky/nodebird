@@ -117,6 +117,25 @@ const reducer = (state = initialState, action) => {
       };
     }
 
+    case RETWEET_REQUEST: {
+      return {
+        ...state,
+      };
+    }
+
+    case RETWEET_SUCCESS: {
+      return {
+        ...state,
+        mainPosts: [action.data, ...state.mainPosts],
+      };
+    }
+
+    case RETWEET_FAILURE: {
+      return {
+        ...state,
+      };
+    }
+
     case ADD_COMMENT_REQUEST:
       return {
         ...state,

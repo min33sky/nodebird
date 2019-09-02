@@ -28,6 +28,9 @@ import {
   LIKE_POST_SUCCESS,
   UNLIKE_POST_FAILURE,
   UNLIKE_POST_SUCCESS,
+  RETWEET_REQUEST,
+  RETWEET_FAILURE,
+  RETWEET_SUCCESS,
 } from '../reducers/post';
 
 function addPostApi(formData) {
@@ -87,6 +90,10 @@ function likePostApi(postId) {
 
 function unlikePostApi(postId) {
   return axios.delete(`/post/${postId}/like`, { withCredentials: true });
+}
+
+function addRetweetApi(postId) {
+  return axios.post(`/post/${postId}/retweet`, {}, { withCredentials: true });
 }
 
 // ************************************ Worker ****************************************/
@@ -242,6 +249,22 @@ function* unlikePost(action) {
   }
 }
 
+function* addRetweet(action) {
+  try {
+    const result = yield call(addRetweetApi, action.data);
+    yield put({
+      type: RETWEET_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: RETWEET_FAILURE,
+      error,
+    });
+    alert(error.response && error.response.data);
+  }
+}
+
 // ********************************** Watcher *********************************** //
 
 function* watchAddPost() {
@@ -280,6 +303,10 @@ function* watchUnlikePost() {
   yield takeLatest(UNLIKE_POST_REQUEST, unlikePost);
 }
 
+function* watchAddRetweet() {
+  yield takeLatest(RETWEET_REQUEST, addRetweet);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
@@ -291,5 +318,6 @@ export default function* postSaga() {
     fork(watchUploadImages),
     fork(watchLikePost),
     fork(watchUnlikePost),
+    fork(watchAddRetweet),
   ]);
 }
