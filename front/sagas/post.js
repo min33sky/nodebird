@@ -32,6 +32,14 @@ import {
   RETWEET_FAILURE,
   RETWEET_SUCCESS,
 } from '../reducers/post';
+import {
+  FOLLOW_USER_REQUEST,
+  UNFOLLOW_USER_REQUEST,
+  UNFOLLOW_USER_FAILURE,
+  FOLLOW_USER_FAILURE,
+  FOLLOW_USER_SUCCESS,
+  UNFOLLOW_USER_SUCCESS,
+} from '../reducers/user';
 
 function addPostApi(formData) {
   // 로그인 전용이므로 쿠키도 같이 보내준다.
@@ -94,6 +102,14 @@ function unlikePostApi(postId) {
 
 function addRetweetApi(postId) {
   return axios.post(`/post/${postId}/retweet`, {}, { withCredentials: true });
+}
+
+function followApi(userId) {
+  return axios.post(`/user/${userId}/follow`, {}, { withCredentials: true });
+}
+
+function unfollowApi(userId) {
+  return axios.delete(`/user/${userId}/follow`, { withCredentials: true });
 }
 
 // ************************************ Worker ****************************************/
@@ -265,6 +281,38 @@ function* addRetweet(action) {
   }
 }
 
+function* follow(action) {
+  try {
+    const result = yield call(followApi, action.data);
+    yield put({
+      type: FOLLOW_USER_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error(error);
+    yield put({
+      type: FOLLOW_USER_FAILURE,
+      error,
+    });
+  }
+}
+
+function* unfollow(action) {
+  try {
+    const result = yield call(unfollowApi, action.data);
+    yield put({
+      type: UNFOLLOW_USER_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error(error);
+    yield put({
+      type: UNFOLLOW_USER_FAILURE,
+      error,
+    });
+  }
+}
+
 // ********************************** Watcher *********************************** //
 
 function* watchAddPost() {
@@ -307,6 +355,14 @@ function* watchAddRetweet() {
   yield takeLatest(RETWEET_REQUEST, addRetweet);
 }
 
+function* watchAddFollow() {
+  yield takeLatest(FOLLOW_USER_REQUEST, follow);
+}
+
+function* watchAddUnfollow() {
+  yield takeLatest(UNFOLLOW_USER_REQUEST, unfollow);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
@@ -319,5 +375,7 @@ export default function* postSaga() {
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchAddRetweet),
+    fork(watchAddFollow),
+    fork(watchAddUnfollow),
   ]);
 }

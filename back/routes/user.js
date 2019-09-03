@@ -192,4 +192,36 @@ router.post('/logout', (req, res) => {
   res.send('Logout Success');
 });
 
+/**
+ * POST /api/user/:id/follow
+ * 팔로우
+ */
+router.post('/:id/follow', isLoggedIn, async (req, res, next) => {
+  try {
+    // req.user에서 바로 관계 설정이 더 성능에 좋지만
+    //  가끔 오류가 있어서 일단 내 정보를 가져온다.
+    const user = await db.User.findOne({ where: { id: req.user.id } });
+    await user.addFollowing(req.params.id);
+    res.send(req.params.id);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+/**
+ * DELETE /api/user/:id/follow
+ * 언팔로우
+ */
+router.delete('/:id/follow', isLoggedIn, async (req, res, next) => {
+  try {
+    const user = await db.User.findOne({ where: { id: req.user.id } });
+    await user.removeFollowing(req.params.id);
+    res.send(req.params.id);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 module.exports = router;

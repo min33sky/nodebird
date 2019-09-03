@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { isLoggedIn } = require('./middleware');
+const { isLoggedIn, isExistedPost } = require('./middleware');
 const db = require('../models');
 
 const router = express.Router();
@@ -113,7 +113,7 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
 /**
  * POST /api/post/images
  * 이미지 업로드
- * * upload.array('image') : FormData에서 보낸 필드명, 여러개는 배열로 오므로 array
+ * * upload.array('image') : FormData에서 보낸 필드명, 파일 여러개는 배열이므로 array
  */
 router.post('/images', upload.array('image'), (req, res) => {
   res.json(req.files.map((v) => v.filename));
@@ -123,14 +123,14 @@ router.post('/images', upload.array('image'), (req, res) => {
  * GET /api/post/:id/comments
  * 게시물 댓글들 불러오기
  */
-router.get('/:id/comments', async (req, res, next) => {
+router.get('/:id/comments', isExistedPost, async (req, res, next) => {
   try {
-    const post = await db.Post.findOne({
-      where: { id: parseInt(req.params.id, 10) },
-    });
-    if (!post) {
-      return res.status(404).send('Post does not exist');
-    }
+    // const post = await db.Post.findOne({
+    //   where: { id: parseInt(req.params.id, 10) },
+    // });
+    // if (!post) {
+    //   return res.status(404).send('Post does not exist');
+    // }
     const comments = await db.Comment.findAll({
       where: {
         PostId: parseInt(req.params.id, 10),

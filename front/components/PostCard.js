@@ -12,6 +12,7 @@ import {
 } from '../reducers/post';
 import PostImages from './PostImages';
 import PostCardContent from './PostCardContent';
+import { UNFOLLOW_USER_REQUEST, FOLLOW_USER_REQUEST } from '../reducers/user';
 
 /**
  * 게시글 컴포넌트 & 댓글 컴포넌트
@@ -94,6 +95,33 @@ const PostCard = ({ post }) => {
     });
   }, [me && me.id, post && post.id]);
 
+  /**
+   * 팔로우
+   */
+  const onFollow = useCallback(
+    (userId) => () => {
+      // 팔로우
+      dispatch({
+        type: FOLLOW_USER_REQUEST,
+        data: userId,
+      });
+    },
+    [],
+  );
+
+  /**
+   * 언팔로우
+   */
+  const onUnfollow = useCallback(
+    (userId) => () => {
+      dispatch({
+        type: UNFOLLOW_USER_REQUEST,
+        data: userId,
+      });
+    },
+    [],
+  );
+
   return (
     <div>
       <Card
@@ -117,7 +145,16 @@ const PostCard = ({ post }) => {
         title={
           post.RetweetId ? `${post.User.nickname}님이 리트윗하셨습니다.` : null
         }
-        extra={<Button>팔로우</Button>}
+        extra={
+          // eslint-disable-next-line no-nested-ternary
+          !me || post.User.id === me.id ? null : me.Followings.find(
+              (v) => v.id === post.User.id,
+            ) ? (
+            <Button onClick={onUnfollow(post.User.id)}>언팔로우</Button>
+          ) : (
+            <Button onClick={onFollow(post.User.id)}>팔로우</Button>
+          )
+        }
       >
         {post.RetweetId && post.Retweet ? (
           <Card

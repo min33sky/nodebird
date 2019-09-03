@@ -1,5 +1,3 @@
-import { userInfo } from 'os';
-
 export const initialState = {
   me: null, // 내 정보 & 로그인 여부
   userInfo: null, // 다른 유저 정보
@@ -9,8 +7,6 @@ export const initialState = {
   isSignedUp: false, // 회원가입 성공
   isSigningUp: false, // 회원가입 시도중
   signUpErrorReason: '', // 회원가입 실패 이유
-  followingList: [], // 팔로잉 리스트
-  followerList: [], // 팔로워 리스트
   isLoading: false, // 로딩 여부
 };
 
@@ -150,6 +146,45 @@ const reducer = (state = initialState, action) => {
         ...state,
       };
     }
+
+    case FOLLOW_USER_REQUEST:
+      return {
+        ...state,
+      };
+
+    case FOLLOW_USER_SUCCESS:
+      return {
+        ...state,
+        me: {
+          ...state.me,
+          Followings: [{ id: action.data }, ...state.me.Followings],
+        },
+      };
+
+    case FOLLOW_USER_FAILURE:
+      return {
+        ...state,
+      };
+
+    case UNFOLLOW_USER_REQUEST:
+      return {
+        ...state,
+      };
+
+    case UNFOLLOW_USER_SUCCESS:
+      return {
+        ...state,
+        me: {
+          ...state.me,
+          Followings: state.me.Followings.filter((v) => v.id !== action.data),
+        },
+      };
+
+    case UNFOLLOW_USER_FAILURE:
+      return {
+        ...state,
+      };
+
     default:
       return {
         ...state,
