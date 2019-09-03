@@ -224,4 +224,45 @@ router.delete('/:id/follow', isLoggedIn, async (req, res, next) => {
   }
 });
 
+/**
+ * POST /api/user/:id/followers
+ * 팔로워 목록 가져오기
+ */
+router.post('/:id/followers', isLoggedIn, async (req, res, next) => {
+  try {
+    const user = await db.User.findOne({ where: { id: req.params.id } });
+    const followers = await user.getFollowers({
+      attributes: ['id', 'nickname'],
+    });
+    res.json(followers);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.post('/:id/followings', isLoggedIn, async (req, res, next) => {
+  try {
+    const user = await db.User.findOne({ where: { id: req.params.id } });
+    const followings = await user.getFollowings({
+      attributes: ['id', 'nickname'],
+    });
+    res.json(followings);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.delete('/:id/follower', isLoggedIn, async (req, res, next) => {
+  try {
+    const me = await db.User.findOne({ where: { id: req.user.id } });
+    await me.removeFollower(req.params.id);
+    res.send(req.params.id);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 module.exports = router;

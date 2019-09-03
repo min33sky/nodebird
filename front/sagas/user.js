@@ -13,6 +13,15 @@ import {
   LOAD_USER_REQUEST,
   LOAD_USER_SUCCESS,
   LOAD_USER_FAILURE,
+  LOAD_FOLLOWERS_REQUEST,
+  LOAD_FOLLOWINGS_REQUEST,
+  REMOVE_FOLLOWER_REQUEST,
+  LOAD_FOLLOWERS_SUCCESS,
+  LOAD_FOLLOWERS_FAILURE,
+  LOAD_FOLLOWINGS_SUCCESS,
+  LOAD_FOLLOWINGS_FAILURE,
+  REMOVE_FOLLOWER_SUCCESS,
+  REMOVE_FOLLOWER_FAILURE,
 } from '../reducers/user';
 
 // const axiosInstance = axios.create({
@@ -46,6 +55,22 @@ function loadUserApi(id) {
   return axios.get(id ? `/user/${id}` : '/user', {
     withCredentials: true,
   });
+}
+
+function loadFollowersApi(userId) {
+  return axios.post(`/user/${userId}/followers`, {}, { withCredentials: true });
+}
+
+function loadFollowingsApi(userId) {
+  return axios.post(
+    `/user/${userId}/followings`,
+    {},
+    { withCredentials: true },
+  );
+}
+
+function removeFollowerApi(userId) {
+  return axios.delete(`/user/${userId}/follower`, { withCredentials: true });
 }
 
 // ********************* Worker Saga *************************** //
@@ -114,6 +139,51 @@ function* loadUser(action) {
   }
 }
 
+function* loadFollowers(action) {
+  try {
+    const result = yield call(loadFollowersApi, action.data);
+    yield put({
+      type: LOAD_FOLLOWERS_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: LOAD_FOLLOWERS_FAILURE,
+      error,
+    });
+  }
+}
+
+function* loadFollowings(action) {
+  try {
+    const result = yield call(loadFollowingsApi, action.data);
+    yield put({
+      type: LOAD_FOLLOWINGS_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: LOAD_FOLLOWINGS_FAILURE,
+      error,
+    });
+  }
+}
+
+function* removeFollower(action) {
+  try {
+    const result = yield call(removeFollowerApi, action.data);
+    yield put({
+      type: REMOVE_FOLLOWER_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: REMOVE_FOLLOWER_FAILURE,
+      error,
+    });
+  }
+}
+
 // ****************** watcher Saga ************************** //
 function* watchLogin() {
   /**
@@ -141,6 +211,18 @@ function* watchLoadUser() {
   yield takeLatest(LOAD_USER_REQUEST, loadUser);
 }
 
+function* watchLoadFollowers() {
+  yield takeLatest(LOAD_FOLLOWERS_REQUEST, loadFollowers);
+}
+
+function* watchLoadFollowings() {
+  yield takeLatest(LOAD_FOLLOWINGS_REQUEST, loadFollowings);
+}
+
+function* watchRemoveFollower() {
+  yield takeLatest(REMOVE_FOLLOWER_REQUEST, removeFollower);
+}
+
 export default function* userSaga() {
   /**
    * - all : 여러개의 이펙트를 동시에 실행한다.
@@ -152,5 +234,8 @@ export default function* userSaga() {
     fork(watchSignUp),
     fork(watchLogout),
     fork(watchLoadUser),
+    fork(watchLoadFollowers),
+    fork(watchLoadFollowings),
+    fork(watchRemoveFollower),
   ]);
 }

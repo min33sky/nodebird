@@ -362,11 +362,11 @@ function* watchAddRetweet() {
   yield takeLatest(RETWEET_REQUEST, addRetweet);
 }
 
-function* watchAddFollow() {
+function* watchFollow() {
   yield takeLatest(FOLLOW_USER_REQUEST, follow);
 }
 
-function* watchAddUnfollow() {
+function* watchUnfollow() {
   yield takeLatest(UNFOLLOW_USER_REQUEST, unfollow);
 }
 
@@ -382,7 +382,7 @@ export default function* postSaga() {
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchAddRetweet),
-    fork(watchAddFollow),
-    fork(watchAddUnfollow),
+    fork(watchFollow),
+    fork(watchUnfollow),
   ]);
 }
