@@ -39,6 +39,7 @@ import {
   FOLLOW_USER_FAILURE,
   FOLLOW_USER_SUCCESS,
   UNFOLLOW_USER_SUCCESS,
+  ADD_POST_TO_ME,
 } from '../reducers/user';
 
 function addPostApi(formData) {
@@ -117,9 +118,15 @@ function unfollowApi(userId) {
 function* addPost(action) {
   try {
     const result = yield call(addPostApi, action.data);
+    // post 리듀서에 데이터 수정
     yield put({
       type: ADD_POST_SUCCESS,
       data: result.data,
+    });
+    // user 리듀서에 데이터 수정 (UserProfile의 게시물 숫자 업데이트)
+    yield put({
+      type: ADD_POST_TO_ME,
+      data: result.data.id,
     });
   } catch (error) {
     yield put({
