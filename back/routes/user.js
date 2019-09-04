@@ -156,7 +156,7 @@ router.get('/:id/posts', async (req, res, next) => {
     // [{ 게시물 내용, User: {id, nickname}}, Images: [] ...]
     const posts = await db.Post.findAll({
       where: {
-        UserId: parseInt(req.params.id, 10),
+        UserId: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
         RetweetId: null, // 리트윗한건 가져오지 않는다.
       },
       include: [
@@ -230,7 +230,11 @@ router.delete('/:id/follow', isLoggedIn, async (req, res, next) => {
  */
 router.post('/:id/followers', isLoggedIn, async (req, res, next) => {
   try {
-    const user = await db.User.findOne({ where: { id: req.params.id } });
+    const user = await db.User.findOne({
+      where: {
+        id: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
+      },
+    });
     const followers = await user.getFollowers({
       attributes: ['id', 'nickname'],
     });
@@ -241,9 +245,17 @@ router.post('/:id/followers', isLoggedIn, async (req, res, next) => {
   }
 });
 
+/**
+ * POST /api/user/:id/followings
+ * 팔로잉 목록 가져오기
+ */
 router.post('/:id/followings', isLoggedIn, async (req, res, next) => {
   try {
-    const user = await db.User.findOne({ where: { id: req.params.id } });
+    const user = await db.User.findOne({
+      where: {
+        id: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
+      },
+    });
     const followings = await user.getFollowings({
       attributes: ['id', 'nickname'],
     });
@@ -254,6 +266,10 @@ router.post('/:id/followings', isLoggedIn, async (req, res, next) => {
   }
 });
 
+/**
+ * DELETE /api/user/:id/follower
+ * 팔로워 삭제
+ */
 router.delete('/:id/follower', isLoggedIn, async (req, res, next) => {
   try {
     const me = await db.User.findOne({ where: { id: req.user.id } });
@@ -265,6 +281,10 @@ router.delete('/:id/follower', isLoggedIn, async (req, res, next) => {
   }
 });
 
+/**
+ * PATCH /api/user/nickname
+ * 닉네임 수정
+ */
 router.patch('/nickname', isLoggedIn, async (req, res, next) => {
   try {
     await db.User.update(

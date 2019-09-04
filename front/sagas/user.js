@@ -1,4 +1,4 @@
-import { all, fork, put, takeLatest, call } from 'redux-saga/effects';
+import { all, fork, put, call, takeEvery } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   LOG_IN_REQUEST,
@@ -55,18 +55,25 @@ function logoutApi() {
 
 function loadUserApi(id) {
   // id가 있으면 특정 사용자 정보. 없으면 로그인 한 사용자 정보
+  // * 클라이언트에서 요청 보낼 때는 브라우저가 쿠키를 같이 동봉해준다.
   return axios.get(id ? `/user/${id}` : '/user', {
-    withCredentials: true,
+    withCredentials: true, // 쿠기 동봉
   });
 }
 
 function loadFollowersApi(userId) {
-  return axios.post(`/user/${userId}/followers`, {}, { withCredentials: true });
+  // userId가 null인경우 0으로 서버에 요청.
+  // 서버는 0일 경우 로그인 한 유저로 판단해서 처리
+  return axios.post(
+    `/user/${userId || 0}/followers`,
+    {},
+    { withCredentials: true },
+  );
 }
 
 function loadFollowingsApi(userId) {
   return axios.post(
-    `/user/${userId}/followings`,
+    `/user/${userId || 0}/followings`,
     {},
     { withCredentials: true },
   );
@@ -214,41 +221,42 @@ function* watchLogin() {
    * 반복문을 쓰는 이유 ex)for문, while(true), takeEvery, takeLatest
    * - 한 사람이 로그인한 후 다른 아이디로 로그인할 수도 있으므로
    * - 반복문을 사용안하면 watchLogin() 함수가 종료되므로 로그인 불가
-   * - takeLatest는 여러번 요청이 오면 가장 마지막 요청만 실행한다.
+   * - takeEvery는 모든 요청을 다 처리한다.
+   * - takeLatest는 여러번 요청이 오면 가장 마지막 요청만 처리한다.
    * - 이전 요청이 끝나지 않은게 있다면 이전 요청을 취소한다.
    * !! 사가와 리덕스는 별개이기 때문에 사가에선 동작안해도 리덕스는 동작한다.
    * !! ex) ReduxDevTools에는 Action이 나타난다.
    * take() : 해당 액션이 디스패치되면 알아서 next()하는 이펙트
    */
-  yield takeLatest(LOG_IN_REQUEST, login);
+  yield takeEvery(LOG_IN_REQUEST, login);
 }
 
 function* watchLogout() {
-  yield takeLatest(LOG_OUT_REQUEST, logout);
+  yield takeEvery(LOG_OUT_REQUEST, logout);
 }
 
 function* watchSignUp() {
-  yield takeLatest(SIGN_UP_REQUEST, signUp);
+  yield takeEvery(SIGN_UP_REQUEST, signUp);
 }
 
 function* watchLoadUser() {
-  yield takeLatest(LOAD_USER_REQUEST, loadUser);
+  yield takeEvery(LOAD_USER_REQUEST, loadUser);
 }
 
 function* watchLoadFollowers() {
-  yield takeLatest(LOAD_FOLLOWERS_REQUEST, loadFollowers);
+  yield takeEvery(LOAD_FOLLOWERS_REQUEST, loadFollowers);
 }
 
 function* watchLoadFollowings() {
-  yield takeLatest(LOAD_FOLLOWINGS_REQUEST, loadFollowings);
+  yield takeEvery(LOAD_FOLLOWINGS_REQUEST, loadFollowings);
 }
 
 function* watchRemoveFollower() {
-  yield takeLatest(REMOVE_FOLLOWER_REQUEST, removeFollower);
+  yield takeEvery(REMOVE_FOLLOWER_REQUEST, removeFollower);
 }
 
 function* watchChangeNickname() {
-  yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNickname);
+  yield takeEvery(CHANGE_NICKNAME_REQUEST, changeNickname);
 }
 
 export default function* userSaga() {

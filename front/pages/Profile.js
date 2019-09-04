@@ -22,22 +22,22 @@ const Profile = () => {
   );
   const { mainPosts } = useSelector((state) => state.post);
 
-  useEffect(() => {
-    if (me) {
-      dispatch({
-        type: LOAD_FOLLOWERS_REQUEST,
-        data: me.id,
-      });
-      dispatch({
-        type: LOAD_FOLLOWINGS_REQUEST,
-        data: me.id,
-      });
-      dispatch({
-        type: LOAD_USER_POSTS_REQUEST,
-        data: me.id,
-      });
-    }
-  }, [me && me.id]);
+  // useEffect(() => {
+  //   if (me) {
+  //     dispatch({
+  //       type: LOAD_FOLLOWERS_REQUEST,
+  //       data: me.id,
+  //     });
+  //     dispatch({
+  //       type: LOAD_FOLLOWINGS_REQUEST,
+  //       data: me.id,
+  //     });
+  //     dispatch({
+  //       type: LOAD_USER_POSTS_REQUEST,
+  //       data: me.id,
+  //     });
+  //   }
+  // }, [me && me.id]);
 
   const unFollow = useCallback(
     (userId) => () => {
@@ -109,6 +109,25 @@ const Profile = () => {
       ))}
     </div>
   );
+};
+
+Profile.getInitialProps = async (context) => {
+  const state = context.store.getState();
+  // 이 직전에 _app의 LOAD_USERS_REQUEST 호출 (me가 null인 상태)
+  // data에 null이 들어가므로 에러가 발생. 그래서 사가와 라우터에서 별도의 처리 필요
+  context.store.dispatch({
+    type: LOAD_FOLLOWERS_REQUEST,
+    data: state.user.me && state.user.me.id,
+  });
+  context.store.dispatch({
+    type: LOAD_FOLLOWINGS_REQUEST,
+    data: state.user.me && state.user.me.id,
+  });
+  context.store.dispatch({
+    type: LOAD_USER_POSTS_REQUEST,
+    data: state.user.me && state.user.me.id,
+  });
+  // LOAD_USERS_SUCCESS 응답이 와서 me가 생김
 };
 
 export default Profile;

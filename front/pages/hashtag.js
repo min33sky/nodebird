@@ -10,14 +10,6 @@ import PostCard from '../components/PostCard';
  */
 const Hashtag = ({ tag }) => {
   const { mainPosts } = useSelector((state) => state.post);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch({
-      type: LOAD_HASHTAG_POSTS_REQUEST,
-      data: tag,
-    });
-  }, []);
 
   return (
     <div>
@@ -37,8 +29,16 @@ Hashtag.propTypes = {
  * - ComponentDidMount보다 먼저 실행되므로 SSR에서 활용한다.
  */
 Hashtag.getInitialProps = async (context) => {
+  // urldecode 해줘야된다.
+  const { tag } = context.query;
+
+  context.store.dispatch({
+    type: LOAD_HASHTAG_POSTS_REQUEST,
+    data: tag,
+  });
+
   return {
-    tag: context.query.tag,
+    tag,
   };
 };
 

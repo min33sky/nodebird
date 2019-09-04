@@ -57,11 +57,11 @@ function loadMainPostsApi() {
 }
 
 function loadHashtagPostsApi(tag) {
-  return axios.get(`/hashtag/${tag}`);
+  return axios.get(`/hashtag/${encodeURIComponent(tag)}`);
 }
 
 function loadUserPostsAPI(id) {
-  return axios.get(`/user/${id}/posts`);
+  return axios.get(`/user/${id || 0}/posts`);
 }
 
 function loadCommentsApi(postId) {

@@ -5,19 +5,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Menu, Input, Row, Col } from 'antd';
 import LoginForm from './LoginForm';
 import UserProfile from './UserProfile';
-import { LOAD_USER_REQUEST } from '../reducers/user';
 
 const AppLayout = ({ children }) => {
   const { me } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (!me) {
-      dispatch({
-        type: LOAD_USER_REQUEST,
-      });
-    }
-  }, []);
 
   return (
     <div style={{ fontFamily: 'Jua' }}>

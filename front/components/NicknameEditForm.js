@@ -9,6 +9,7 @@ const NicknameEditForm = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // 현재 닉네임을 출력한다.
     if (me) {
       setNickname(me.nickname);
     }
@@ -29,7 +30,7 @@ const NicknameEditForm = () => {
         return alert('동일한 닉네임입니다');
       }
 
-      dispatch({
+      return dispatch({
         type: CHANGE_NICKNAME_REQUEST,
         data: nickname.trim(),
       });
