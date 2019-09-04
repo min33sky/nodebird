@@ -10,6 +10,8 @@ export const initialState = {
   isLoading: false, // 로딩 여부
   followingList: [],
   followerList: [],
+  isEditingNickname: false, // 닉네임 변경 중
+  nicknameErrorReason: '',
 };
 
 /**
@@ -57,6 +59,11 @@ export const FOLLOW_USER_FAILURE = 'FOLLOW_USER_FAILURE';
 export const UNFOLLOW_USER_REQUEST = 'UNFOLLOW_USER_REQUEST';
 export const UNFOLLOW_USER_SUCCESS = 'UNFOLLOW_USER_SUCCESS';
 export const UNFOLLOW_USER_FAILURE = 'UNFOLLOW_USER_FAILURE';
+
+// 닉네임 변경
+export const CHANGE_NICKNAME_REQUEST = 'CHANGE_NICKNAME_REQUEST';
+export const CHANGE_NICKNAME_SUCCESS = 'CHANGE_NICKNAME_SUCCESS';
+export const CHANGE_NICKNAME_FAILURE = 'CHANGE_NICKNAME_FAILURE';
 
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 
@@ -197,6 +204,7 @@ const reducer = (state = initialState, action) => {
         ...state,
       };
 
+    // 게시물 등록할 때 로그인 한 유저 정보도 업데이트
     case ADD_POST_TO_ME:
       return {
         ...state,
@@ -260,6 +268,30 @@ const reducer = (state = initialState, action) => {
     case REMOVE_FOLLOWER_FAILURE:
       return {
         ...state,
+      };
+
+    case CHANGE_NICKNAME_REQUEST:
+      return {
+        ...state,
+        isEditingNickname: true,
+        nicknameErrorReason: '',
+      };
+
+    case CHANGE_NICKNAME_SUCCESS:
+      return {
+        ...state,
+        me: {
+          ...state.me,
+          nickname: action.data,
+        },
+        isEditingNickname: false,
+      };
+
+    case CHANGE_NICKNAME_FAILURE:
+      return {
+        ...state,
+        isEditingNickname: false,
+        nicknameErrorReason: action.error,
       };
 
     default:

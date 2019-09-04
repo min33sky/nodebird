@@ -22,6 +22,9 @@ import {
   LOAD_FOLLOWINGS_FAILURE,
   REMOVE_FOLLOWER_SUCCESS,
   REMOVE_FOLLOWER_FAILURE,
+  CHANGE_NICKNAME_REQUEST,
+  CHANGE_NICKNAME_FAILURE,
+  CHANGE_NICKNAME_SUCCESS,
 } from '../reducers/user';
 
 // const axiosInstance = axios.create({
@@ -71,6 +74,10 @@ function loadFollowingsApi(userId) {
 
 function removeFollowerApi(userId) {
   return axios.delete(`/user/${userId}/follower`, { withCredentials: true });
+}
+
+function changeNicknameApi(nickname) {
+  return axios.patch(`/user/nickname`, { nickname }, { withCredentials: true });
 }
 
 // ********************* Worker Saga *************************** //
@@ -184,6 +191,23 @@ function* removeFollower(action) {
   }
 }
 
+function* changeNickname(action) {
+  try {
+    const result = yield call(changeNicknameApi, action.data);
+    console.log('닉네임 : ', result.data);
+    yield put({
+      type: CHANGE_NICKNAME_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error('%%%%%%%%%%%%%%%%%% : ', error);
+    yield put({
+      type: CHANGE_NICKNAME_FAILURE,
+      error,
+    });
+  }
+}
+
 // ****************** watcher Saga ************************** //
 function* watchLogin() {
   /**
@@ -223,6 +247,10 @@ function* watchRemoveFollower() {
   yield takeLatest(REMOVE_FOLLOWER_REQUEST, removeFollower);
 }
 
+function* watchChangeNickname() {
+  yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNickname);
+}
+
 export default function* userSaga() {
   /**
    * - all : 여러개의 이펙트를 동시에 실행한다.
@@ -237,5 +265,6 @@ export default function* userSaga() {
     fork(watchLoadFollowers),
     fork(watchLoadFollowings),
     fork(watchRemoveFollower),
+    fork(watchChangeNickname),
   ]);
 }
