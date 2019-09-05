@@ -61,20 +61,18 @@ function loadUserApi(id) {
   });
 }
 
-function loadFollowersApi(userId) {
+function loadFollowersApi(userId, offset = 0, limit = 3) {
   // userId가 null인경우 0으로 서버에 요청.
   // 서버는 0일 경우 로그인 한 유저로 판단해서 처리
-  return axios.post(
-    `/user/${userId || 0}/followers`,
-    {},
+  return axios.get(
+    `/user/${userId || 0}/followers?offset=${offset}&limit=${limit}`,
     { withCredentials: true },
   );
 }
 
-function loadFollowingsApi(userId) {
-  return axios.post(
-    `/user/${userId || 0}/followings`,
-    {},
+function loadFollowingsApi(userId, offset = 0, limit = 3) {
+  return axios.get(
+    `/user/${userId || 0}/followings?offset=${offset}&limit=${limit}`,
     { withCredentials: true },
   );
 }
@@ -155,7 +153,7 @@ function* loadUser(action) {
 
 function* loadFollowers(action) {
   try {
-    const result = yield call(loadFollowersApi, action.data);
+    const result = yield call(loadFollowersApi, action.data, action.offset);
     yield put({
       type: LOAD_FOLLOWERS_SUCCESS,
       data: result.data,
@@ -170,7 +168,7 @@ function* loadFollowers(action) {
 
 function* loadFollowings(action) {
   try {
-    const result = yield call(loadFollowingsApi, action.data);
+    const result = yield call(loadFollowingsApi, action.data, action.offset);
     yield put({
       type: LOAD_FOLLOWINGS_SUCCESS,
       data: result.data,

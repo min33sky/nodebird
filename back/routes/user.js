@@ -226,10 +226,10 @@ router.delete('/:id/follow', isLoggedIn, async (req, res, next) => {
 });
 
 /**
- * POST /api/user/:id/followers
+ * GET /api/user/:id/followers
  * 팔로워 목록 가져오기
  */
-router.post('/:id/followers', isLoggedIn, async (req, res, next) => {
+router.get('/:id/followers', isLoggedIn, async (req, res, next) => {
   try {
     const user = await db.User.findOne({
       where: {
@@ -237,6 +237,8 @@ router.post('/:id/followers', isLoggedIn, async (req, res, next) => {
       },
     });
     const followers = await user.getFollowers({
+      offset: parseInt(req.query.offset, 10),
+      limit: parseInt(req.query.limit, 10),
       attributes: ['id', 'nickname'],
     });
     res.json(followers);
@@ -247,10 +249,10 @@ router.post('/:id/followers', isLoggedIn, async (req, res, next) => {
 });
 
 /**
- * POST /api/user/:id/followings
+ * GET /api/user/:id/followings
  * 팔로잉 목록 가져오기
  */
-router.post('/:id/followings', isLoggedIn, async (req, res, next) => {
+router.get('/:id/followings', isLoggedIn, async (req, res, next) => {
   try {
     const user = await db.User.findOne({
       where: {
@@ -258,6 +260,8 @@ router.post('/:id/followings', isLoggedIn, async (req, res, next) => {
       },
     });
     const followings = await user.getFollowings({
+      offset: parseInt(req.query.offset, 10),
+      limit: parseInt(req.query.limit, 10),
       attributes: ['id', 'nickname'],
     });
     res.json(followings);
@@ -298,7 +302,6 @@ router.patch('/nickname', isLoggedIn, async (req, res, next) => {
         },
       },
     );
-    console.log('###################### : ', req.body.nickname);
     res.send(req.body.nickname);
   } catch (error) {
     console.error(error);
