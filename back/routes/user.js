@@ -156,6 +156,7 @@ router.get('/:id/posts', async (req, res, next) => {
     // [{ 게시물 내용, User: {id, nickname}}, Images: [] ...]
     const posts = await db.Post.findAll({
       where: {
+        // parseInt()를 안하면 문자 0은 true로 처리
         UserId: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
         RetweetId: null, // 리트윗한건 가져오지 않는다.
       },

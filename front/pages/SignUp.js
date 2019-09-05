@@ -86,6 +86,11 @@ const Signup = () => {
     setTerm(e.target.checked);
   }, []);
 
+  // 로그인 했다면 화면 보여주지 않는다.
+  if (me) {
+    return null;
+  }
+
   return (
     <>
       <Form onSubmit={onSubmit} style={{ padding: 20 }}>

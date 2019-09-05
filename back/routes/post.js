@@ -314,4 +314,20 @@ router.post('/:id/retweet', isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.delete('/:id', isLoggedIn, async (req, res, next) => {
+  try {
+    // 포스트 확인 (미들웨어로 업데이트 하자
+    const post = await db.Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('Post does not exist');
+    }
+    // * destroy: 시퀄라이저 데이터 삭제
+    await db.Post.destroy({ where: { id: req.params.id } });
+    return res.send(req.params.id);
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
 module.exports = router;

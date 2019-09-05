@@ -31,6 +31,9 @@ import {
   RETWEET_REQUEST,
   RETWEET_FAILURE,
   RETWEET_SUCCESS,
+  REMOVE_POST_REQUEST,
+  REMOVE_POST_FAILURE,
+  REMOVE_POST_SUCCESS,
 } from '../reducers/post';
 import {
   FOLLOW_USER_REQUEST,
@@ -40,6 +43,7 @@ import {
   FOLLOW_USER_SUCCESS,
   UNFOLLOW_USER_SUCCESS,
   ADD_POST_TO_ME,
+  REMOVE_POST_OF_ME,
 } from '../reducers/user';
 
 function addPostApi(formData) {
@@ -111,6 +115,12 @@ function followApi(userId) {
 
 function unfollowApi(userId) {
   return axios.delete(`/user/${userId}/follow`, { withCredentials: true });
+}
+
+function removePostApi(postId) {
+  return axios.delete(`/post/${postId}`, {
+    withCredentials: true,
+  });
 }
 
 // ************************************ Worker ****************************************/
@@ -320,6 +330,27 @@ function* unfollow(action) {
   }
 }
 
+function* removePost(action) {
+  try {
+    const result = yield call(removePostApi, action.data);
+    yield put({
+      type: REMOVE_POST_SUCCESS,
+      data: result.data,
+    });
+    // User 리듀서 데이터도 수정해준다. (나의 게시물 숫자 업데이트)
+    yield put({
+      type: REMOVE_POST_OF_ME,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error(error);
+    yield put({
+      type: REMOVE_POST_FAILURE,
+      error,
+    });
+  }
+}
+
 // ********************************** Watcher *********************************** //
 
 function* watchAddPost() {
@@ -370,6 +401,10 @@ function* watchUnfollow() {
   yield takeLatest(UNFOLLOW_USER_REQUEST, unfollow);
 }
 
+function* watchRemovePost() {
+  yield takeLatest(REMOVE_POST_REQUEST, removePost);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
@@ -384,5 +419,6 @@ export default function* postSaga() {
     fork(watchAddRetweet),
     fork(watchFollow),
     fork(watchUnfollow),
+    fork(watchRemovePost),
   ]);
 }

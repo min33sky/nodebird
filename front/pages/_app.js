@@ -57,7 +57,8 @@ Nodebird.propTypes = {
  * * Lifecycle Function
  * - componentDidMount보다도 먼저 호출된다.
  * - (클라이언트)서버와 클라이언트(브라우저) 모두에서 사용되므로 서버사이드렌더링에 사용
- * - context: next에서 제공하는 인자
+ * ? context: next에서 제공하는 인자
+ * ! getInitialProps는 pages에서만 사용 가능
  */
 Nodebird.getInitialProps = async (context) => {
   console.log(context);
