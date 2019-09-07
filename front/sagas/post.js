@@ -1,4 +1,4 @@
-import { all, fork, put, takeLatest, call } from 'redux-saga/effects';
+import { all, fork, put, takeLatest, call, throttle } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   ADD_POST_SUCCESS,
@@ -53,15 +53,17 @@ function addPostApi(formData) {
   });
 }
 
-function loadMainPostsApi() {
-  return axios.get('/posts', {
+function loadMainPostsApi(lastId = 0, limit = 10) {
+  return axios.get(`/posts?lastId=${lastId}&limit=${limit}`, {
     // 로그인 안해도 볼 수 있으므로 쿠키를 안보내도 된다.
     // withCredentials: true,
   });
 }
 
-function loadHashtagPostsApi(tag) {
-  return axios.get(`/hashtag/${encodeURIComponent(tag)}`);
+function loadHashtagPostsApi(tag, lastId = 0, limit = 10) {
+  return axios.get(
+    `/hashtag/${encodeURIComponent(tag)}?lastId=${lastId}&limit=${limit}`,
+  );
 }
 
 function loadUserPostsAPI(id) {
@@ -164,12 +166,13 @@ function* addComment(action) {
   }
 }
 
-function* loadMainPosts() {
+function* loadMainPosts(action) {
   try {
-    const result = yield call(loadMainPostsApi);
+    const result = yield call(loadMainPostsApi, action.lastId);
     yield put({
       type: LOAD_MAIN_POSTS_SUCCESS,
       data: result.data,
+      lastId: action.lastId,
     });
   } catch (error) {
     yield put({
@@ -181,10 +184,11 @@ function* loadMainPosts() {
 
 function* loadHashtagPosts(action) {
   try {
-    const result = yield call(loadHashtagPostsApi, action.data);
+    const result = yield call(loadHashtagPostsApi, action.data, action.lastId);
     yield put({
       type: LOAD_HASHTAG_POSTS_SUCCESS,
       data: result.data,
+      lastId: action.lastId,
     });
   } catch (error) {
     yield put({
@@ -362,11 +366,13 @@ function* watchAddComment() {
 }
 
 function* watchLoadPosts() {
-  yield takeLatest(LOAD_MAIN_POSTS_REQUEST, loadMainPosts);
+  // * takeLatest는 마지막 요청을 응답하긴 하지만 짧은 시간 다수의 요청을 막을 순 없다.
+  // * throttle은 일정 시간후에 요청이 가능하게 한다.
+  yield throttle(2000, LOAD_MAIN_POSTS_REQUEST, loadMainPosts);
 }
 
 function* watchLoadHashtagPosts() {
-  yield takeLatest(LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
+  yield throttle(2000, LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
 }
 
 function* watchLoadUserPosts() {

@@ -7,6 +7,7 @@ export const initialState = {
   isAddingComment: false, // 댓글 업로드 중
   addedPost: false, // 포스트 추가 완료
   addedComment: false, // 댓글 추가 완료
+  hasMorePost: false, // 포스트 더 보기 (무한 스크롤링)
 };
 
 // 메인 포스트 관련
@@ -273,7 +274,8 @@ const reducer = (state = initialState, action) => {
     case LOAD_MAIN_POSTS_REQUEST: {
       return {
         ...state,
-        mainPosts: [],
+        mainPosts: !action.lastId ? [] : state.mainPosts,
+        hasMorePost: action.lastId ? state.hasMorePost : true,
       };
     }
 
@@ -282,7 +284,8 @@ const reducer = (state = initialState, action) => {
     case LOAD_MAIN_POSTS_SUCCESS: {
       return {
         ...state,
-        mainPosts: action.data,
+        mainPosts: state.mainPosts.concat(action.data),
+        hasMorePost: action.data.length === 10,
       };
     }
 
