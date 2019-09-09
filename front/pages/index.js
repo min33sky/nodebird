@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PostForm from '../components/PostForm';
 import PostCard from '../components/PostCard';
@@ -12,6 +12,7 @@ const Home = () => {
   const { me } = useSelector((state) => state.user);
   const { mainPosts, hasMorePost } = useSelector((state) => state.post);
   const dispatch = useDispatch();
+  const countRef = useRef([]); // ! ref가 아닌 일반 빈배열을 쓰면 랜더링할 때마다 빈 배열이 된다
 
   const onScroll = useCallback(() => {
     if (
@@ -19,10 +20,15 @@ const Home = () => {
       document.documentElement.scrollHeight - 300
     ) {
       if (hasMorePost) {
-        dispatch({
-          type: LOAD_MAIN_POSTS_REQUEST,
-          lastId: mainPosts[mainPosts.length - 1].id,
-        });
+        const lastId = mainPosts[mainPosts.length - 1].id; // 로드한 글 중 가장 마지막 글의 id
+        // 같은 id에 대한 중복 요청을 막는다.
+        if (!countRef.current.includes(lastId)) {
+          dispatch({
+            type: LOAD_MAIN_POSTS_REQUEST,
+            lastId,
+          });
+        }
+        countRef.current.push(lastId);
       }
     }
   }, [mainPosts.length, hasMorePost]);

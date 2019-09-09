@@ -368,6 +368,7 @@ function* watchAddComment() {
 function* watchLoadPosts() {
   // * takeLatest는 마지막 요청을 응답하긴 하지만 짧은 시간 다수의 요청을 막을 순 없다.
   // * throttle은 일정 시간후에 요청이 가능하게 한다.
+  // ! throttle은 사가 액션만 막는다. 리덕스 자체 액션은 별도로 클라이언트에서 막아야한다.
   yield throttle(2000, LOAD_MAIN_POSTS_REQUEST, loadMainPosts);
 }
 
