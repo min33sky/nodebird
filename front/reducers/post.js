@@ -1,3 +1,5 @@
+import produce from 'immer';
+
 export const initialState = {
   imagePaths: [], // 미리보기 이미지 경로
   mainPosts: [], // 불러온 포스트들
@@ -69,239 +71,181 @@ export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 
 const reducer = (state = initialState, action) => {
-  switch (action.type) {
-    case ADD_POST_REQUEST:
-      return {
-        ...state,
-        isAddingPost: true,
-        addedPost: false,
-        addPostErrorReason: '',
-      };
+  return produce(state, (draft) => {
+    switch (action.type) {
+      case ADD_POST_REQUEST: {
+        draft.isAddingPost = true;
+        draft.addedPost = false;
+        draft.addPostErrorReason = '';
+        break;
+      }
 
-    case ADD_POST_SUCCESS:
-      return {
-        ...state,
-        isAddingPost: false,
-        addedPost: true,
-        mainPosts: [action.data, ...state.mainPosts],
-        imagePaths: [], // 미리보기 이미지 초기화
-      };
+      case ADD_POST_SUCCESS: {
+        draft.isAddingPost = false;
+        draft.addedPost = true;
+        draft.mainPosts.unshift(action.data);
+        draft.imagePaths = []; // 이미지 미리보기 초기화
+        break;
+      }
 
-    case ADD_POST_FAILURE:
-      return {
-        ...state,
-        addPostErrorReason: action.error,
-      };
+      case ADD_POST_FAILURE: {
+        draft.isAddingPost = false;
+        draft.addPostErrorReason = action.error;
+        break;
+      }
 
-    case UPLOAD_IMAGES_REQUEST:
-      return {
-        ...state,
-      };
+      case UPLOAD_IMAGES_REQUEST:
+        break;
 
-    case UPLOAD_IMAGES_SUCCESS:
-      return {
-        ...state,
-        imagePaths: [...state.imagePaths, ...action.data], // 미리보기 업데이트
-      };
+      case UPLOAD_IMAGES_SUCCESS: {
+        action.data.forEach((e) => {
+          draft.imagePaths.push(e);
+        });
+        break;
+      }
 
-    case UPLOAD_IMAGES_FAILURE:
-      return {
-        ...state,
-      };
+      case UPLOAD_IMAGES_FAILURE: {
+        break;
+      }
 
-    case REMOVE_IMAGE: {
-      return {
-        ...state,
-        imagePaths: state.imagePaths.filter(
-          (image, index) => index !== action.index,
-        ),
-      };
+      case REMOVE_IMAGE: {
+        const index = draft.imagePaths.findIndex((v, i) => i === action.index);
+        draft.imagePaths.splice(index, 1);
+        break;
+      }
+
+      case RETWEET_REQUEST: {
+        break;
+      }
+
+      case RETWEET_SUCCESS: {
+        draft.mainPosts.unshift(action.data);
+        break;
+      }
+
+      case RETWEET_FAILURE: {
+        break;
+      }
+
+      case ADD_COMMENT_REQUEST: {
+        draft.isAddingComment = true;
+        draft.addedComment = false;
+        draft.addCommentErrorReason = '';
+        break;
+      }
+
+      case ADD_COMMENT_SUCCESS: {
+        const index = draft.mainPosts.findIndex(
+          (v) => v.id === action.data.postId,
+        );
+        draft.mainPosts[index].Comments.push(action.data.comment);
+        draft.isAddingComment = false;
+        draft.addedComment = true;
+        break;
+      }
+
+      case ADD_COMMENT_FAILURE: {
+        draft.isAddingComment = false;
+        draft.addCommentErrorReason = action.error;
+        break;
+      }
+
+      case LOAD_COMMENTS_REQUEST: {
+        break;
+      }
+
+      case LOAD_COMMENTS_SUCCESS: {
+        const index = draft.mainPosts.findIndex(
+          (v) => v.id === action.data.postId,
+        );
+        draft.mainPosts[index].Comments = action.data.comments;
+        break;
+      }
+
+      case LOAD_COMMENTS_FAILURE: {
+        break;
+      }
+
+      case LIKE_POST_REQUEST: {
+        break;
+      }
+
+      case LIKE_POST_SUCCESS: {
+        const postIndex = draft.mainPosts.findIndex(
+          (v) => v.id === action.data.postId,
+        );
+        draft.mainPosts[postIndex].Likers.unshift({ id: action.data.userId });
+        break;
+      }
+
+      case LIKE_POST_FAILURE: {
+        break;
+      }
+
+      case UNLIKE_POST_REQUEST: {
+        break;
+      }
+
+      case UNLIKE_POST_SUCCESS: {
+        const postIndex = draft.mainPosts.findIndex(
+          (v) => v.id === action.data.postId,
+        );
+        const likeIndex = draft.mainPosts[postIndex].Likers.findIndex(
+          (v) => v.id === action.data.userId,
+        );
+        draft.mainPosts[postIndex].Likers.splice(likeIndex, 1);
+        break;
+      }
+
+      case UNLIKE_POST_FAILURE: {
+        break;
+      }
+
+      case REMOVE_POST_REQUEST: {
+        break;
+      }
+
+      case REMOVE_POST_SUCCESS: {
+        const postIndex = draft.mainPosts.findIndex(
+          (v) => v.id === action.data,
+        );
+        draft.mainPosts.splice(postIndex, 1);
+        break;
+      }
+
+      case REMOVE_POST_FAILURE: {
+        break;
+      }
+
+      case LOAD_HASHTAG_POSTS_REQUEST:
+      case LOAD_USER_POSTS_REQUEST:
+      case LOAD_MAIN_POSTS_REQUEST: {
+        draft.mainPosts = !action.lastId ? [] : draft.mainPosts;
+        draft.hasMorePost = action.lastId ? draft.hasMorePost : true;
+        break;
+      }
+
+      case LOAD_HASHTAG_POSTS_SUCCESS:
+      case LOAD_USER_POSTS_SUCCESS:
+      case LOAD_MAIN_POSTS_SUCCESS: {
+        action.data.forEach((e) => {
+          draft.mainPosts.push(e);
+        });
+        draft.hasMorePost = action.data.length === 10;
+        break;
+      }
+
+      case LOAD_HASHTAG_POSTS_FAILURE:
+      case LOAD_USER_POSTS_FAILURE:
+      case LOAD_MAIN_POSTS_FAILURE: {
+        break;
+      }
+
+      default: {
+        break;
+      }
     }
-
-    case RETWEET_REQUEST: {
-      return {
-        ...state,
-      };
-    }
-
-    case RETWEET_SUCCESS: {
-      return {
-        ...state,
-        mainPosts: [action.data, ...state.mainPosts],
-      };
-    }
-
-    case RETWEET_FAILURE: {
-      return {
-        ...state,
-      };
-    }
-
-    case ADD_COMMENT_REQUEST:
-      return {
-        ...state,
-        isAddingComment: true,
-        addedComment: false,
-        addCommentErrorReason: '',
-      };
-
-    case ADD_COMMENT_SUCCESS: {
-      // ** 불변성 지키기 **
-      // 댓글을 달 게시물 찾기
-      const postIndex = state.mainPosts.findIndex(
-        (v) => v.id === action.data.postId,
-        2,
-      );
-      const post = state.mainPosts[postIndex];
-      // 댓글 추가
-      const Comments = [...post.Comments, action.data.comment];
-      // 게시물 업데이트
-      const mainPosts = [...state.mainPosts];
-      mainPosts[postIndex] = { ...post, Comments };
-      return {
-        ...state,
-        isAddingComment: false,
-        addedComment: true,
-        mainPosts,
-      };
-    }
-
-    case ADD_COMMENT_FAILURE:
-      return {
-        ...state,
-        isAddingComment: false,
-        addCommentErrorReason: action.error,
-      };
-
-    case LOAD_COMMENTS_REQUEST:
-      return {
-        ...state,
-      };
-
-    case LOAD_COMMENTS_SUCCESS: {
-      const postIndex = state.mainPosts.findIndex(
-        (v) => v.id === action.data.postId,
-      );
-      const post = state.mainPosts[postIndex];
-      const Comments = [...action.data.comments];
-      const mainPosts = [...state.mainPosts];
-      mainPosts[postIndex] = { ...post, Comments };
-      return {
-        ...state,
-        mainPosts,
-      };
-    }
-
-    case LOAD_COMMENTS_FAILURE: {
-      return {
-        ...state,
-      };
-    }
-
-    case LIKE_POST_REQUEST: {
-      return {
-        ...state,
-      };
-    }
-
-    case LIKE_POST_SUCCESS: {
-      const postIndex = state.mainPosts.findIndex(
-        (v) => v.id === action.data.postId,
-      );
-      const post = state.mainPosts[postIndex];
-      const Likers = [{ id: action.data.userId }, ...post.Likers];
-      const mainPosts = [...state.mainPosts];
-      mainPosts[postIndex] = { ...post, Likers };
-      return {
-        ...state,
-        mainPosts,
-      };
-    }
-
-    case LIKE_POST_FAILURE: {
-      return {
-        ...state,
-      };
-    }
-
-    case UNLIKE_POST_REQUEST: {
-      return {
-        ...state,
-      };
-    }
-
-    case UNLIKE_POST_SUCCESS: {
-      const postIndex = state.mainPosts.findIndex(
-        (v) => v.id === action.data.postId,
-      );
-      const post = state.mainPosts[postIndex];
-      const Likers = post.Likers.filter((v) => v.id !== action.data.userId);
-      const mainPosts = [...state.mainPosts];
-      mainPosts[postIndex] = { ...post, Likers };
-      return {
-        ...state,
-        mainPosts,
-      };
-    }
-
-    case UNLIKE_POST_FAILURE: {
-      return {
-        ...state,
-      };
-    }
-
-    case REMOVE_POST_REQUEST: {
-      return {
-        ...state,
-      };
-    }
-
-    case REMOVE_POST_SUCCESS: {
-      return {
-        ...state,
-        mainPosts: state.mainPosts.filter((v) => v.id !== action.data),
-      };
-    }
-
-    case REMOVE_POST_FAILURE: {
-      return {
-        ...state,
-      };
-    }
-
-    case LOAD_HASHTAG_POSTS_REQUEST:
-    case LOAD_USER_POSTS_REQUEST:
-    case LOAD_MAIN_POSTS_REQUEST: {
-      return {
-        ...state,
-        mainPosts: !action.lastId ? [] : state.mainPosts,
-        hasMorePost: action.lastId ? state.hasMorePost : true,
-      };
-    }
-
-    case LOAD_HASHTAG_POSTS_SUCCESS:
-    case LOAD_USER_POSTS_SUCCESS:
-    case LOAD_MAIN_POSTS_SUCCESS: {
-      return {
-        ...state,
-        mainPosts: state.mainPosts.concat(action.data),
-        hasMorePost: action.data.length === 10,
-      };
-    }
-
-    case LOAD_HASHTAG_POSTS_FAILURE:
-    case LOAD_USER_POSTS_FAILURE:
-    case LOAD_MAIN_POSTS_FAILURE: {
-      return {
-        ...state,
-      };
-    }
-
-    default:
-      return {
-        ...state,
-      };
-  }
+  });
 };
 
 export default reducer;
