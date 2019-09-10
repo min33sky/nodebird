@@ -5,8 +5,8 @@ import { useSelector } from 'react-redux';
 import { Menu, Input, Row, Col } from 'antd';
 import Router from 'next/router';
 import styled from 'styled-components';
-import LoginForm from './LoginForm';
-import UserProfile from './UserProfile';
+import LoginForm from '../containers/LoginForm';
+import UserProfile from '../containers/UserProfile';
 
 const Overlay = styled.div`
   font-family: 'Jua';

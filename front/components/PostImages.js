@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from 'antd';
-import ImagesZoom from './ImagesZoom';
+import ImagesZoom from './ImageZoom';
 
 const SERVER_URL = 'http://localhost:8080';
 

@@ -10,6 +10,9 @@ import { LOAD_POST_REQUEST } from '../reducers/post';
  */
 const Post = ({ id }) => {
   const { singlePost } = useSelector((state) => state.post);
+
+  if (!singlePost) return <div>게시물 없다</div>;
+
   return (
     <>
       <Helmet
