@@ -1,21 +1,30 @@
 import React from 'react';
 import Helmet from 'react-helmet';
+import PropTypes from 'prop-types';
 import Document, { Main, NextScript } from 'next/document';
+import { ServerStyleSheet } from 'styled-components';
 
 /**
  * NEXT에서 제공하는 HTML을 담당하는 파일
- * - Main : _App.js
+ * - Main : _app.js
  * - NextScript : Next 서버 구동에 필요한 스크립트
+ * ! 아직 Hooks를 지원하지 않는다.
  */
 class MyDocument extends Document {
-  // NEXT Lifecycle
   static getInitialProps(context) {
-    // * Document가 App의 상위이고 App을 여기서 실행해 줘야된다.
-    // App : _app.js
-    // page: 필요한 데이터가 있으면 this.props.page에서 꺼내 쓰자.
-    const page = context.renderPage((App) => (props) => <App {...props} />);
-    // React-Helmet SSR
-    return { ...page, helmet: Helmet.renderStatic() };
+    /**
+     * Header와 Style 관련 SSR 설정
+     * * _document는 _app의 상위 컴포넌트이고 여기서 _app을 랜더링 해야한다.
+     * - App은 _app.js를 의미한다.
+     * - page는 여기선 특별히 사용하지 않지만 필수 설정이다
+     * ! 스타일 컴포넌트는 해당 컴포넌트가 렌더링 될 때 사용되므로 사용전엔 헤더파일에 안보인다
+     */
+    const sheet = new ServerStyleSheet();
+    const page = context.renderPage((App) => (props) =>
+      sheet.collectStyles(<App {...props} />),
+    );
+    const styleTags = sheet.getStyleElement();
+    return { ...page, helmet: Helmet.renderStatic(), styleTags };
   }
 
   render() {
@@ -26,7 +35,10 @@ class MyDocument extends Document {
 
     return (
       <html {...htmlAttrs}>
-        <head>{Object.values(helmet).map((el) => el.toComponent())}</head>
+        <head>
+          {this.props.styleTags}
+          {Object.values(helmet).map((el) => el.toComponent())}
+        </head>
         <body {...bodyAttrs}>
           <Main />
           <NextScript />
@@ -35,5 +47,10 @@ class MyDocument extends Document {
     );
   }
 }
+
+MyDocument.propTypes = {
+  helmet: PropTypes.object.isRequired,
+  styleTags: PropTypes.object.isRequired,
+};
 
 export default MyDocument;
