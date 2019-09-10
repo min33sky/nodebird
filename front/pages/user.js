@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Card, Avatar } from 'antd';
 import { LOAD_USER_POSTS_REQUEST } from '../reducers/post';
@@ -11,7 +11,6 @@ import { LOAD_USER_REQUEST } from '../reducers/user';
  * 특정 유저 정보와 게시물들 보여주는 페이지
  */
 const User = ({ id }) => {
-  const dispatch = useDispatch();
   const { mainPosts } = useSelector((state) => state.post);
   const { userInfo } = useSelector((state) => state.user);
 
@@ -44,7 +43,7 @@ const User = ({ id }) => {
         </Card>
       ) : null}
       {mainPosts.map((c) => (
-        <PostCard key={+c.createdAt} post={c} />
+        <PostCard key={c.id} post={c} />
       ))}
     </div>
   );

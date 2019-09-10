@@ -154,7 +154,7 @@ const PostCard = ({ post }) => {
   return (
     <CardWrapper>
       <Card
-        // '+'를 변수앞에 붙이면 parseInt()를 대체할 수 있다.
+        // '+'를 객체앞에 붙이면 형 변환이 된다..
         key={+post.createdAt}
         cover={
           post.Images && post.Images[0] && <PostImages images={post.Images} />
@@ -305,9 +305,9 @@ PostCard.propTypes = {
     User: PropTypes.object.isRequired,
     content: PropTypes.string.isRequired,
     Images: PropTypes.array,
-    createdAt: PropTypes.object,
+    createdAt: PropTypes.string,
     Comments: PropTypes.array,
-    RetweetId: PropTypes.number.isRequired,
+    RetweetId: PropTypes.number,
     Retweet: PropTypes.object,
   }).isRequired,
 };

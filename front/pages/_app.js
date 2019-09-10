@@ -73,6 +73,11 @@ const Nodebird = ({ Component, store, pageProps }) => (
             href:
               'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css',
           },
+          {
+            rel: 'stylesheet',
+            href:
+              'https://fonts.googleapis.com/css?family=Jua|PT+Sans+Narrow&display=swap',
+          },
         ]}
       />
       <AppLayout>
@@ -121,7 +126,7 @@ Nodebird.getInitialProps = async (context) => {
 
   if (Component.getInitialProps) {
     // APP의 하위 컴포넌트의 getInitialProps를 호출한다.
-    pageProps = await Component.getInitialProps(ctx);
+    pageProps = (await Component.getInitialProps(ctx)) || {};
   }
 
   return { pageProps }; // 컴포넌트가 마운트 되기 전에 제공하는 props

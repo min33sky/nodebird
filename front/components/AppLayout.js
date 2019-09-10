@@ -1,16 +1,37 @@
-import React, { useEffect } from 'react';
+import React, { useCallback } from 'react';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Menu, Input, Row, Col } from 'antd';
+import Router from 'next/router';
+import styled from 'styled-components';
 import LoginForm from './LoginForm';
 import UserProfile from './UserProfile';
+
+const Overlay = styled.div`
+  font-family: 'Jua';
+`;
 
 const AppLayout = ({ children }) => {
   const { me } = useSelector((state) => state.user);
 
+  // 검색창
+  const onSearch = useCallback((value) => {
+    Router.push(
+      // 내부적으로 접근하는 주소
+      {
+        pathname: '/hashtag',
+        query: {
+          tag: value,
+        },
+      },
+      // 눈으로 보이는 주소
+      `hashtag/${value}`,
+    );
+  }, []);
+
   return (
-    <div style={{ fontFamily: 'Jua' }}>
+    <Overlay>
       <Menu mode="horizontal" style={{ fontFamily: 'PT Sans Narrow' }}>
         <Menu.Item key="home">
           <Link href="/">
@@ -23,7 +44,11 @@ const AppLayout = ({ children }) => {
           </Link>
         </Menu.Item>
         <Menu.Item key="mail">
-          <Input.Search enterButton style={{ verticalAlign: 'middle' }} />
+          <Input.Search
+            enterButton
+            style={{ verticalAlign: 'middle' }}
+            onSearch={onSearch}
+          />
         </Menu.Item>
       </Menu>
       {/* gutter: col간 간격 */}
@@ -40,7 +65,7 @@ const AppLayout = ({ children }) => {
           </Link>
         </Col>
       </Row>
-    </div>
+    </Overlay>
   );
 };
 
