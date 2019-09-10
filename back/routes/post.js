@@ -330,4 +330,28 @@ router.delete('/:id', isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.get('/:id', async (req, res, next) => {
+  try {
+    const post = await db.Post.findOne({
+      where: { id: req.params.id },
+      include: [
+        {
+          model: db.User,
+          attributes: ['id', 'nickname'],
+        },
+        {
+          model: db.Image,
+        },
+      ],
+    });
+    if (!post) {
+      return res.status(404).send('Not Found');
+    }
+    return res.json(post);
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
 module.exports = router;

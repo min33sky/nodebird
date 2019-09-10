@@ -16,7 +16,7 @@ export const initialState = {
   nicknameErrorReason: '',
   hasMoreFollower: false, // 팔로워 더보기 버튼
   hasMoreFollowing: false, // 팔로잉 더보기 버튼
-  signupData: null,
+  signupData: null, // ? 회원 가입 데이터                (아직 쓸모 없음)
 };
 
 /**
@@ -47,10 +47,12 @@ export const LOAD_FOLLOWINGS_REQUEST = 'LOAD_FOLLOWINGS_REQUEST';
 export const LOAD_FOLLOWINGS_SUCCESS = 'LOAD_FOLLOWINGS_SUCCESS';
 export const LOAD_FOLLOWINGS_FAILURE = 'LOAD_FOLLOWINGS_FAILURE';
 
+// 팔로워 목록 가져오기
 export const LOAD_FOLLOWERS_REQUEST = 'LOAD_FOLLOWERS_REQUEST';
 export const LOAD_FOLLOWERS_SUCCESS = 'LOAD_FOLLOWERS_SUCCESS';
 export const LOAD_FOLLOWERS_FAILURE = 'LOAD_FOLLOWERS_FAILURE';
 
+// 팔로워 삭제
 export const REMOVE_FOLLOWER_REQUEST = 'REMOVE_FOLLOWER_REQUEST';
 export const REMOVE_FOLLOWER_SUCCESS = 'REMOVE_FOLLOWER_SUCCESS';
 export const REMOVE_FOLLOWER_FAILURE = 'REMOVE_FOLLOWER_FAILURE';
@@ -70,8 +72,10 @@ export const CHANGE_NICKNAME_REQUEST = 'CHANGE_NICKNAME_REQUEST';
 export const CHANGE_NICKNAME_SUCCESS = 'CHANGE_NICKNAME_SUCCESS';
 export const CHANGE_NICKNAME_FAILURE = 'CHANGE_NICKNAME_FAILURE';
 
+// 게시물 등록 시 나의 정보 업데이트
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 
+// 게시물 삭제 시 나의 정보 업데이트
 export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 
 // *********************** Action Func ************************** //

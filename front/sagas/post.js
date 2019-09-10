@@ -34,6 +34,9 @@ import {
   REMOVE_POST_REQUEST,
   REMOVE_POST_FAILURE,
   REMOVE_POST_SUCCESS,
+  LOAD_POST_REQUEST,
+  LOAD_POST_FAILURE,
+  LOAD_POST_SUCCESS,
 } from '../reducers/post';
 import {
   FOLLOW_USER_REQUEST,
@@ -123,6 +126,10 @@ function removePostApi(postId) {
   return axios.delete(`/post/${postId}`, {
     withCredentials: true,
   });
+}
+
+function loadPostApi(postId) {
+  return axios.get(`/post/${postId}`);
 }
 
 // ************************************ Worker ****************************************/
@@ -355,6 +362,23 @@ function* removePost(action) {
   }
 }
 
+function* loadPost(action) {
+  try {
+    console.log('################################## : ', action.data);
+    const result = yield call(loadPostApi, action.data); // id
+    yield put({
+      type: LOAD_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error(error);
+    yield put({
+      type: LOAD_POST_FAILURE,
+      error,
+    });
+  }
+}
+
 // ********************************** Watcher *********************************** //
 
 function* watchAddPost() {
@@ -412,6 +436,10 @@ function* watchRemovePost() {
   yield takeLatest(REMOVE_POST_REQUEST, removePost);
 }
 
+function* watchLoadPost() {
+  yield takeLatest(LOAD_POST_REQUEST, loadPost);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
@@ -427,5 +455,6 @@ export default function* postSaga() {
     fork(watchFollow),
     fork(watchUnfollow),
     fork(watchRemovePost),
+    fork(watchLoadPost),
   ]);
 }

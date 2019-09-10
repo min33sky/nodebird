@@ -39,6 +39,11 @@ app.prepare().then(() => {
     }),
   );
 
+  server.get('/post/:id', (req, res) => {
+    // next로 라우팅  (마지막 인자값은 getInitialProps에서 사용할 수 있다.)
+    return app.render(req, res, '/post', { id: req.params.id });
+  });
+
   server.get('/hashtag/:tag', (req, res) => {
     // next로 라우팅  (마지막 인자값은 getInitialProps에서 사용할 수 있다.)
     return app.render(req, res, '/hashtag', { tag: req.params.tag });

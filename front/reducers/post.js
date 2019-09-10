@@ -10,6 +10,7 @@ export const initialState = {
   addedPost: false, // 포스트 추가 완료
   addedComment: false, // 댓글 추가 완료
   hasMorePost: false, // 포스트 더 보기 (무한 스크롤링)
+  singlePost: null, // 개별 포스트 데이터
 };
 
 // 메인 포스트 관련
@@ -69,6 +70,11 @@ export const RETWEET_FAILURE = 'RETWEET_FAILURE';
 export const REMOVE_POST_REQUEST = 'REMOVE_POST_REQUEST';
 export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
+
+// 개별 포스트 로드
+export const LOAD_POST_REQUEST = 'LOAD_POST_REQUEST';
+export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
+export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
 
 const reducer = (state = initialState, action) => {
   return produce(state, (draft) => {
@@ -214,6 +220,19 @@ const reducer = (state = initialState, action) => {
       }
 
       case REMOVE_POST_FAILURE: {
+        break;
+      }
+
+      case LOAD_POST_REQUEST: {
+        break;
+      }
+
+      case LOAD_POST_SUCCESS: {
+        draft.singlePost = action.data;
+        break;
+      }
+
+      case LOAD_POST_FAILURE: {
         break;
       }
 
