@@ -18,11 +18,11 @@ passportConfig();
 
 app.use(morgan('dev'));
 app.use('/', express.static('uploads'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); //  JSON Request Parsing
+app.use(express.urlencoded({ extended: true })); // Form Request Parsing
 app.use(
+  // 서버주소와 프론트주소가 다를 때 쿠키를 주고받기 위한 설정
   cors({
-    // 서버주소와 프론트주소가 다를 때 쿠키를 주고받기 위한 설정
     origin: true,
     credentials: true,
   }),
@@ -43,7 +43,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session()); // express-session보다 아래에 위치
 
-app.use('/api', api); // Router
+app.use('/api', api); // API Router
 
 app.get('/', (req, res) => {
   res.send('Hello, Server');

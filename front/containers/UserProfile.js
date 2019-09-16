@@ -14,6 +14,7 @@ const UserProfile = () => {
   }, []);
 
   return (
+    // * Link에 prefetch를 적용하면 미리 로드할 수 있다. (개발서버에선 효과 없음)
     <div>
       <Card
         actions={[
@@ -26,6 +27,7 @@ const UserProfile = () => {
             }}
             as={`/user/${me.id}`}
             key="twit"
+            prefetch
           >
             <a>
               <div>
@@ -35,7 +37,7 @@ const UserProfile = () => {
               </div>
             </a>
           </Link>,
-          <Link href="/profile" key="following">
+          <Link href="/profile" key="following" prefetch>
             <a>
               <div>
                 팔로잉
@@ -44,7 +46,7 @@ const UserProfile = () => {
               </div>
             </a>
           </Link>,
-          <Link href="/profile" key="follower">
+          <Link href="/profile" key="follower" prefetch>
             <a>
               <div>
                 팔로워

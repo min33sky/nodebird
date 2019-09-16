@@ -1,6 +1,7 @@
 const express = require('express');
 const next = require('next');
 const morgan = require('morgan');
+const path = require('path');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
@@ -24,6 +25,7 @@ app.prepare().then(() => {
   const server = express();
 
   server.use(morgan('dev'));
+  server.use('/', express.static(path.join(__dirname, 'public')));
   server.use(express.json());
   server.use(express.urlencoded({ extended: true }));
   server.use(cookieParser(process.env.COOKIE_SECRET));
@@ -39,13 +41,14 @@ app.prepare().then(() => {
     }),
   );
 
+  // *************************** express를 이용한 동적 라우팅 ****************************** //
+
   server.get('/post/:id', (req, res) => {
     // next로 라우팅  (마지막 인자값은 getInitialProps에서 사용할 수 있다.)
     return app.render(req, res, '/post', { id: req.params.id });
   });
 
   server.get('/hashtag/:tag', (req, res) => {
-    // next로 라우팅  (마지막 인자값은 getInitialProps에서 사용할 수 있다.)
     return app.render(req, res, '/hashtag', { tag: req.params.tag });
   });
 
@@ -53,9 +56,7 @@ app.prepare().then(() => {
     return app.render(req, res, '/user', { id: req.params.id });
   });
 
-  /**
-   * 위를 제외한 get 요청을 next의 get 요청 핸들러로 처리한다.
-   */
+  // * 나머지 get 요청을 next의 get 요청 핸들러로 처리한다.
   server.get('*', (req, res) => {
     return handle(req, res);
   });

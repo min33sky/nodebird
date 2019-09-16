@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, memo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
 import {
@@ -14,6 +14,7 @@ import {
 } from 'antd';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import moment from 'moment';
 import {
   ADD_COMMENT_REQUEST,
   LOAD_COMMENTS_REQUEST,
@@ -25,6 +26,9 @@ import {
 import PostImages from '../components/PostImages';
 import PostCardContent from '../components/PostCardContent';
 import { UNFOLLOW_USER_REQUEST, FOLLOW_USER_REQUEST } from '../reducers/user';
+import CommentForm from './CommentForm';
+
+moment.locale('ko'); // 한글 설정
 
 const CardWrapper = styled.div`
   margin-bottom: 40px;
@@ -34,18 +38,11 @@ const CardWrapper = styled.div`
  * 게시글 컴포넌트 & 댓글 컴포넌트
  * @param {Object} post 게시글
  */
-const PostCard = ({ post }) => {
+const PostCard = memo(({ post }) => {
   const [commentFormOpened, setCommentFormOpened] = useState(false);
-  const [commentText, setCommentText] = useState('');
   const { me } = useSelector((state) => state.user);
-  const { addedComment, isAddingComment } = useSelector((state) => state.post);
   const dispatch = useDispatch();
   const liked = me && post.Likers && post.Likers.find((v) => v.id === me.id);
-
-  // Lifecycle Function
-  useEffect(() => {
-    setCommentText('');
-  }, [addedComment === true]);
 
   // 댓글 창 열기
   const onToggleComment = useCallback(() => {
@@ -57,27 +54,6 @@ const PostCard = ({ post }) => {
         id: post.id,
       });
     }
-  }, []);
-
-  const onSubmitComment = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!me) {
-        return alert('로그인이 필요한 서비스입니다.');
-      }
-      return dispatch({
-        type: ADD_COMMENT_REQUEST,
-        data: {
-          postId: post.id,
-          content: commentText,
-        },
-      });
-    },
-    [me && me.id, commentText],
-  );
-
-  const onChangeCommentText = useCallback((e) => {
-    setCommentText(e.target.value);
   }, []);
 
   // 좋아요 토글
@@ -211,6 +187,9 @@ const PostCard = ({ post }) => {
               )
             }
           >
+            <span style={{ float: 'right' }}>
+              {moment(post.createdAt).format('YYYY.MM.DD.')}
+            </span>
             <Card.Meta
               avatar={
                 <Link
@@ -252,25 +231,7 @@ const PostCard = ({ post }) => {
       </Card>
       {commentFormOpened && (
         <>
-          <Form onSubmit={onSubmitComment}>
-            <Form.Item>
-              <Input.TextArea
-                rows={4}
-                value={commentText}
-                onChange={onChangeCommentText}
-                placeholder={!me ? '로그인이 필요해요😘' : '댓글을 남기세요'}
-                disabled={!me}
-                autoFocus
-              />
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isAddingComment}
-              >
-                작성
-              </Button>
-            </Form.Item>
-          </Form>
+          <CommentForm post={post} />
           <List
             header={`${post.Comments ? post.Comments.length : 0} 댓글`}
             itemLayout="horizontal"
@@ -296,10 +257,9 @@ const PostCard = ({ post }) => {
       )}
     </CardWrapper>
   );
-};
+});
 
 PostCard.propTypes = {
-  // TODO: createdAt에 isRequired 추가
   post: PropTypes.shape({
     id: PropTypes.number.isRequired,
     User: PropTypes.object.isRequired,

@@ -17,15 +17,16 @@ const AppLayout = ({ children }) => {
 
   // 검색창
   const onSearch = useCallback((value) => {
+    // 동적 라우팅 사용
     Router.push(
-      // 내부적으로 접근하는 주소
+      // NEXT 내부적으로 접근하는 주소
       {
         pathname: '/hashtag',
         query: {
           tag: value,
         },
       },
-      // 눈으로 보이는 주소
+      // 눈으로 보이는 주소 (설정하지 않으면 쿼리스트링 방식으로 출력한다.)
       `hashtag/${value}`,
     );
   }, []);
