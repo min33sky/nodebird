@@ -41,10 +41,7 @@ app.prepare().then(() => {
     }),
   );
 
-  // *************************** express를 이용한 동적 라우팅 ****************************** //
-
   server.get('/post/:id', (req, res) => {
-    // next로 라우팅  (마지막 인자값은 getInitialProps에서 사용할 수 있다.)
     return app.render(req, res, '/post', { id: req.params.id });
   });
 
@@ -56,7 +53,6 @@ app.prepare().then(() => {
     return app.render(req, res, '/user', { id: req.params.id });
   });
 
-  // * 나머지 get 요청을 next의 get 요청 핸들러로 처리한다.
   server.get('*', (req, res) => {
     return handle(req, res);
   });

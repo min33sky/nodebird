@@ -1,22 +1,11 @@
-import React, { useState, useCallback, useEffect, memo } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
-import {
-  Card,
-  Icon,
-  Button,
-  Avatar,
-  List,
-  Form,
-  Input,
-  Comment,
-  Popover,
-} from 'antd';
+import { Card, Icon, Button, Avatar, List, Comment, Popover } from 'antd';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import moment from 'moment';
 import {
-  ADD_COMMENT_REQUEST,
   LOAD_COMMENTS_REQUEST,
   UNLIKE_POST_REQUEST,
   LIKE_POST_REQUEST,
@@ -27,8 +16,9 @@ import PostImages from '../components/PostImages';
 import PostCardContent from '../components/PostCardContent';
 import { UNFOLLOW_USER_REQUEST, FOLLOW_USER_REQUEST } from '../reducers/user';
 import CommentForm from './CommentForm';
+import FollowButton from '../components/FollowButton';
 
-moment.locale('ko'); // 한글 설정
+moment.locale('ko'); // moment 한글 설정
 
 const CardWrapper = styled.div`
   margin-bottom: 40px;
@@ -40,9 +30,22 @@ const CardWrapper = styled.div`
  */
 const PostCard = memo(({ post }) => {
   const [commentFormOpened, setCommentFormOpened] = useState(false);
-  const { me } = useSelector((state) => state.user);
+  const id = useSelector((state) => state.user.me && state.user.me.id);
   const dispatch = useDispatch();
-  const liked = me && post.Likers && post.Likers.find((v) => v.id === me.id);
+  const liked = id && post.Likers && post.Likers.find((v) => v.id === id);
+
+  // ! 최적화 예제
+  // * useRef는 DOM에 직접 접근 뿐만 아니라 랜더링 될 필요없는 변수를 저장하는 용도로도 사용한다.
+  // const meMemory = useRef(me); // 이전 값 기억
+
+  // useEffect(() => {
+  // 출력이 된다면 me가 렌더링에 영향을 준다는 것이다.
+  // 팔로우 버튼을 누르면 me.Followings가 바뀌기 때문에 랜더링이 발생하는데
+  // me.Following을 여기서 사용을 안하기 때문에 me에서 필요한 것만 꺼내쓰는 것으로 수정한다.
+  //   console.log('me useEffect', meMemory.current, me, meMemory.current === me);
+  // }, [me]);
+
+  // ******************************************************************************************* //
 
   // 댓글 창 열기
   const onToggleComment = useCallback(() => {
@@ -58,7 +61,7 @@ const PostCard = memo(({ post }) => {
 
   // 좋아요 토글
   const onToggleLike = useCallback(() => {
-    if (!me) {
+    if (!id) {
       return alert('로그인이 필요합니다.');
     }
     if (liked) {
@@ -72,20 +75,20 @@ const PostCard = memo(({ post }) => {
         data: post.id,
       });
     }
-  }, [me && me.id, post && post.id, liked]);
+  }, [id, post && post.id, liked]);
 
   /**
    * 리트윗
    */
   const onClickRetweet = useCallback(() => {
-    if (!me) {
+    if (!id) {
       return alert('로그인이 필요합니다.');
     }
     dispatch({
       type: RETWEET_REQUEST,
       data: post.id,
     });
-  }, [me && me.id, post && post.id]);
+  }, [id, post && post.id]);
 
   /**
    * 팔로우
@@ -149,7 +152,7 @@ const PostCard = memo(({ post }) => {
             key="ellipsis"
             content={
               <Button.Group>
-                {me && post.UserId === me.id ? (
+                {id && post.UserId === id ? (
                   <>
                     <Button>수정</Button>
                     <Button type="danger" onClick={onRemovePost(post.id)}>
@@ -169,14 +172,11 @@ const PostCard = memo(({ post }) => {
           post.RetweetId ? `${post.User.nickname}님이 리트윗하셨습니다.` : null
         }
         extra={
-          // eslint-disable-next-line no-nested-ternary
-          !me || post.User.id === me.id ? null : me.Followings.find(
-              (v) => v.id === post.User.id,
-            ) ? (
-            <Button onClick={onUnfollow(post.User.id)}>언팔로우</Button>
-          ) : (
-            <Button onClick={onFollow(post.User.id)}>팔로우</Button>
-          )
+          <FollowButton
+            post={post}
+            onUnfollow={onUnfollow}
+            onFollow={onFollow}
+          />
         }
       >
         {post.RetweetId && post.Retweet ? (
@@ -242,7 +242,7 @@ const PostCard = memo(({ post }) => {
                   author={item.User.nickname}
                   avatar={
                     <Link
-                      href={{ pathname: '/user', query: { id: post.User.id } }}
+                      href={`/user?id=${post.User.id}`}
                       as={`/user/${post.User.id}`}
                     >
                       <Avatar>{item.User.nickname[0]}</Avatar>

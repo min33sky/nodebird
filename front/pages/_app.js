@@ -7,11 +7,20 @@ import withReduxSaga from 'next-redux-saga';
 import PropTypes from 'prop-types';
 import { createStore, compose, applyMiddleware } from 'redux';
 import axios from 'axios';
-import { Container } from 'next/app';
+import App, { Container } from 'next/app';
 import AppLayout from '../components/AppLayout';
 import reducer from '../reducers';
 import rootSaga from '../sagas';
 import { LOAD_USER_REQUEST } from '../reducers/user';
+
+// class NodeBird extends App {
+//   static getInitialProps(context) {
+//
+//   }
+//   render() {
+//
+//   }
+// }
 
 /**
  * Next에서 제공하는 Layout 파일
