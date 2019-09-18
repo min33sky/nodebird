@@ -23,3 +23,6 @@ yarn-error.log*
 
 # Yarn Integrity file
 .yarn-integrity
+
+# 아마존 웹서비스 관련
+react-nodebird.pem
