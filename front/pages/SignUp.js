@@ -1,8 +1,28 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Form, Checkbox, Button } from 'antd';
+import { Form, Checkbox, Button, Input } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
+import styled from 'styled-components';
 import { signUpAction } from '../reducers/user';
+
+/**
+ * TODO : 회원가입 할 때 실시간으로 아이디와 닉네임 중복 확인
+ */
+
+const SignupError = styled.div`
+  color: red;
+`;
+
+const SignupForm = styled(Form)`
+  padding: 3rem;
+  border: 1px solid black;
+`;
+
+const SignupButton = styled(Button)`
+  margin-top: 1.2rem;
+`;
+
+const SignupInput = styled(Input)``;
 
 /**
  * Custom Hook
@@ -40,12 +60,6 @@ const Signup = () => {
       alert('메인 페이지로 이동합니다.');
       Router.push('/');
     }
-    /**
-     * 의존 배열의 값은 객체 대신 일반 값을 사용한다.
-     * (객체나 배열은 비교하기 까다롭기 때문에)
-     * 객체 안의 값을 사용할땐 먼저 객체가 undefined인지 체크하자
-     */
-    // TODO: 회원 가입 후 로그인 액션을 디스패치해서 로그인 & 페이지 이동
   }, [me && me.id]);
 
   // ***** Event Handler ***** //
@@ -86,28 +100,33 @@ const Signup = () => {
     setTerm(e.target.checked);
   }, []);
 
-  // 로그인 했다면 화면 보여주지 않는다.
+  // 로그인 했다면 회원가입 화면 보여주지 않는다.
   if (me) {
     return null;
   }
 
   return (
     <>
-      <Form onSubmit={onSubmit} style={{ padding: 20 }}>
+      <SignupForm onSubmit={onSubmit}>
         <div>
           <label htmlFor="user-id">아이디</label>
           <br />
-          <input id="user-id" value={id} onChange={onChangeId} required />
+          <SignupInput id="user-id" value={id} onChange={onChangeId} required />
         </div>
         <div>
           <label htmlFor="user-nick">닉네임</label>
           <br />
-          <input id="user-nick" value={nick} onChange={onChangeNick} required />
+          <SignupInput
+            id="user-nick"
+            value={nick}
+            onChange={onChangeNick}
+            required
+          />
         </div>
         <div>
           <label htmlFor="user-password">비밀번호</label>
           <br />
-          <input
+          <SignupInput
             id="user-password"
             type="password"
             value={password}
@@ -118,27 +137,27 @@ const Signup = () => {
         <div>
           <label htmlFor="user-password-check">비밀번호확인</label>
           <br />
-          <input
+          <SignupInput
             id="user-password-check"
             type="password"
             value={passwordCheck}
             onChange={onChangePasswordCheck}
             required
           />
-          {passwordError && <div style={{ color: 'red' }}>패스워드 불일치</div>}
+          {passwordError && <SignupError>패스워드 불일치</SignupError>}
         </div>
         <div>
           <Checkbox id="user-term" value={term} onChange={onChangeTerm}>
             동의하시겠습니까?
           </Checkbox>
-          {termError && <div style={{ color: 'red' }}>약관 에러</div>}
+          {termError && <SignupError>약관 에러</SignupError>}
         </div>
-        <div style={{ marginTop: 10 }}>
-          <Button type="primary" htmlType="submit" loading={isSigningUp}>
+        <div>
+          <SignupButton type="primary" htmlType="submit" loading={isSigningUp}>
             가입하기
-          </Button>
+          </SignupButton>
         </div>
-      </Form>
+      </SignupForm>
     </>
   );
 };

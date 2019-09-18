@@ -17,6 +17,24 @@
 
 ## ETC
 
+### Check Point
+
+1. useEffect
+
+   - 의존 배열의 값은 객체 대신 일반 값을 사용한다.
+   - (객체나 배열은 비교하기 까다롭기 때문에)
+   - 객체 안의 값을 사용할땐 먼저 객체가 undefined인지 체크하자
+
+```js
+useEffect(() => {
+  // me는 객체 값
+  if (me) {
+    alert("메인 페이지로 이동합니다.");
+    Router.push("/");
+  }
+}, [me && me.id]);
+```
+
 ### Error Message
 
 1. Error: Include unexpected. Element has to be either a Model, an Association or an object

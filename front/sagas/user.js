@@ -97,7 +97,7 @@ function* login(action) {
   } catch (error) {
     yield put({
       type: LOG_IN_FAILURE,
-      error,
+      error: error.response && error.response.data,
     });
   }
 }
@@ -121,6 +121,11 @@ function* signUp(action) {
     yield call(signUpApi, action.data);
     yield put({
       type: SIGN_UP_SUCCESS,
+      data: action.data,
+    });
+    // 회원 가입 성공하면 로그인
+    yield put({
+      type: LOG_IN_REQUEST,
       data: action.data,
     });
   } catch (error) {

@@ -1,9 +1,14 @@
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Form } from 'antd';
+import { Button, Form, Input } from 'antd';
 import Link from 'next/link';
+import styled from 'styled-components';
 import { useInput } from '../pages/signup';
 import { loginAction } from '../reducers/user';
+
+const LoginError = styled.div`
+  color: red;
+`;
 
 const LoginForm = () => {
   // ***************** Custom Hook 사용 *************************//
@@ -11,7 +16,7 @@ const LoginForm = () => {
   const [password, onChangePassword] = useInput('');
 
   const dispatch = useDispatch();
-  const { isLoading } = useSelector((state) => state.user);
+  const { isLoading, loginErrorReason } = useSelector((state) => state.user);
 
   const onSubmitForm = useCallback(
     (e) => {
@@ -27,14 +32,14 @@ const LoginForm = () => {
         <label htmlFor="login_field">
           아이디
           <br />
-          <input id="login_field" value={id} onChange={onChangeId} required />
+          <Input id="login_field" value={id} onChange={onChangeId} required />
         </label>
       </div>
       <div style={{ marginBottom: 10 }}>
         <label htmlFor="password">
           패스워드
           <br />
-          <input
+          <Input
             id="password"
             type="password"
             value={password}
@@ -44,12 +49,20 @@ const LoginForm = () => {
         </label>
       </div>
       <div>
-        <Button type="primary" htmlType="submit" loading={isLoading}>
+        <LoginError>{loginErrorReason}</LoginError>
+      </div>
+      <div>
+        <Button
+          type="primary"
+          htmlType="submit"
+          loading={isLoading}
+          style={{ width: '50%' }}
+        >
           로그인
         </Button>
         <Link href="/signup">
           <a>
-            <Button>회원 가입</Button>
+            <Button style={{ width: '50%' }}>회원 가입</Button>
           </a>
         </Link>
       </div>

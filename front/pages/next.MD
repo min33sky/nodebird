@@ -8,9 +8,9 @@
 
 - div#root
 
-## pages 파일들
+## pages 폴더 파일들
 
-- 실제 컴포넌트
+- 라우팅 될 컴포넌트
 
 ## \_error.js
 

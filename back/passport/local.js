@@ -17,7 +17,8 @@ module.exports = () => {
             return done(null, false, { reason: '존재하지 않는 사용자입니다.' });
           }
 
-          const result = bcrtypt.compare(password, user.password);
+          const result = await bcrtypt.compare(password, user.password);
+
           if (!result) {
             return done(null, false, { reason: '비밀번호가 다릅니다.' });
           }

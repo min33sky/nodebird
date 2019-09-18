@@ -7,20 +7,11 @@ import withReduxSaga from 'next-redux-saga';
 import PropTypes from 'prop-types';
 import { createStore, compose, applyMiddleware } from 'redux';
 import axios from 'axios';
-import App, { Container } from 'next/app';
+import { Container } from 'next/app';
 import AppLayout from '../components/AppLayout';
 import reducer from '../reducers';
 import rootSaga from '../sagas';
 import { LOAD_USER_REQUEST } from '../reducers/user';
-
-// class NodeBird extends App {
-//   static getInitialProps(context) {
-//
-//   }
-//   render() {
-//
-//   }
-// }
 
 /**
  * Next에서 제공하는 Layout 파일
@@ -61,6 +52,11 @@ const Nodebird = ({ Component, store, pageProps }) => (
           {
             property: 'og:type',
             content: 'website',
+          },
+          {
+            // default Image
+            property: 'og:image',
+            content: 'http://localhost:3060/favicon.ico',
           },
         ]}
         link={[
@@ -147,7 +143,7 @@ const configureStore = (initialState, options) => {
   const sagaMiddleware = createSagaMiddleware();
   const middlewares = [
     sagaMiddleware,
-    // 커스텀 로깅 미들웨어
+    // * 커스텀 로깅 미들웨어
     (store) => (next) => (action) => {
       console.log(action);
       next(action);
