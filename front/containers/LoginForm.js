@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Form, Input } from 'antd';
 import Link from 'next/link';
 import styled from 'styled-components';
-import { useInput } from '../pages/signup_old';
+import { useInput } from '../pages/signup';
 import { loginAction } from '../reducers/user';
 
 const LoginError = styled.div`
