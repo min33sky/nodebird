@@ -49,6 +49,9 @@ app.get('/', (req, res) => {
   res.send('Hello, Server');
 });
 
-app.listen(PORT_NUMBER, () => {
-  console.log(`Server is running on port ${PORT_NUMBER}`);
-});
+app.listen(
+  process.env.NODE_ENV === 'production' ? process.env.PORT : PORT_NUMBER,
+  () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
+  },
+);
